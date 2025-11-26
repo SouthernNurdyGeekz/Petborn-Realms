@@ -1,3 +1,4 @@
+/* === GLOBAL RESET === */
 *,
 *::before,
 *::after {
@@ -10,7 +11,7 @@ body {
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: radial-gradient(circle at top, #391a6f 0%, #0c0418 55%, #050208 100%);
-  color: #e08cff; /* neon lavender-pink */
+  color: #e08cff; /* neon lavender-pink, not white */
 }
 
 body {
@@ -18,6 +19,8 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* === TYPOGRAPHY === */
 
 h1,
 h2,
@@ -41,7 +44,7 @@ strong {
   color: #ffb3ff;
 }
 
-/* Header */
+/* === HEADER === */
 
 .site-header {
   position: sticky;
@@ -51,13 +54,23 @@ strong {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(90deg, rgba(10, 3, 30, 0.96), rgba(40, 8, 70, 0.96));
+  background: linear-gradient(
+    90deg,
+    rgba(10, 3, 30, 0.96),
+    rgba(40, 8, 70, 0.96)
+  );
   border-bottom: 1px solid rgba(192, 96, 255, 0.4);
   backdrop-filter: blur(8px);
 }
 
-.logo-title { max-width: 60%; }
-.tagline { font-size: 0.8rem; color: #8efcff; }
+.logo-title {
+  max-width: 60%;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: #8efcff;
+}
 
 .main-nav {
   display: flex;
@@ -71,7 +84,11 @@ strong {
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 179, 255, 0.4);
-  background: radial-gradient(circle, rgba(75, 0, 130, 0.8), rgba(20, 2, 50, 0.9));
+  background: radial-gradient(
+    circle,
+    rgba(75, 0, 130, 0.8),
+    rgba(20, 2, 50, 0.9)
+  );
   transition: 0.15s ease;
 }
 
@@ -81,12 +98,20 @@ strong {
   border-color: rgba(255, 230, 150, 0.7);
 }
 
-/* Hero */
+/* === HERO === */
 
 .hero-section {
   padding: 2.5rem 1.25rem 1.5rem;
-  background: radial-gradient(circle at top left, rgba(255, 90, 241, 0.18), transparent 55%),
-              radial-gradient(circle at top right, rgba(112, 255, 234, 0.14), transparent 60%);
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 90, 241, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(112, 255, 234, 0.14),
+      transparent 60%
+    );
 }
 
 .hero-content {
@@ -94,7 +119,7 @@ strong {
   margin: 0 auto;
 }
 
-/* Main content */
+/* === MAIN LAYOUT === */
 
 main {
   flex: 1;
@@ -111,10 +136,14 @@ main {
   padding: 0.9rem 1rem;
   border-radius: 0.9rem;
   border: 1px solid rgba(112, 255, 234, 0.4);
-  background: radial-gradient(circle at left, rgba(5, 255, 222, 0.1), rgba(10, 3, 40, 0.9));
+  background: radial-gradient(
+    circle at left,
+    rgba(5, 255, 222, 0.1),
+    rgba(10, 3, 40, 0.9)
+  );
 }
 
-/* GAME BOARD */
+/* === GAME SECTION === */
 
 .game-section {
   margin-top: 0.5rem;
@@ -127,34 +156,67 @@ main {
   margin-top: 1rem;
 }
 
+/* BOARD CONTAINER */
+
 .board-container {
-  position: relative;
   padding: 1.25rem;
   border-radius: 1.1rem;
   border: 1px solid rgba(192, 96, 255, 0.6);
-  background: radial-gradient(circle at top, rgba(30, 0, 80, 0.95), rgba(7, 1, 20, 0.96));
+  background: radial-gradient(
+    circle at top,
+    rgba(30, 0, 80, 0.95),
+    rgba(7, 1, 20, 0.96)
+  );
   box-shadow: 0 0 18px rgba(192, 96, 255, 0.5);
   overflow-x: auto;
 }
 
+/* BOARD ROW */
+
 .board {
   display: flex;
   gap: 0.5rem;
-  padding-bottom: 2rem; /* space for token */
 }
 
+/* BOARD TILES */
+
 .board-tile {
-  min-width: 70px;
-  padding: 0.5rem 0.4rem;
+  min-width: 80px;
+  min-height: 80px;
+  padding: 0.4rem;
   border-radius: 0.6rem;
   border: 1px solid rgba(112, 255, 234, 0.4);
   text-align: center;
   font-size: 0.75rem;
   color: #c2a6ff;
-  background: radial-gradient(circle at top, rgba(50, 0, 90, 0.95), rgba(10, 3, 30, 0.96));
-  position: relative;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease,
+  background: radial-gradient(
+    circle at top,
+    rgba(50, 0, 90, 0.95),
+    rgba(10, 3, 30, 0.96)
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
     background 0.15s ease;
+}
+
+/* TILE LABEL */
+
+.board-tile-label {
+  font-size: 0.75rem;
+}
+
+/* TOKEN INSIDE TILE */
+
+.petborn-token {
+  font-size: 1.6rem;
+  margin-top: 0.2rem;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
 }
 
 /* Different tile flavors */
@@ -187,33 +249,29 @@ main {
   border-color: rgba(255, 179, 255, 0.9);
 }
 
-/* Tile with token */
+/* ACTIVE TILE */
 
-.board-tile.has-token {
+.board-tile.active-tile {
   box-shadow: 0 0 20px rgba(112, 255, 234, 0.9);
   transform: translateY(-4px);
-  background: radial-gradient(circle at top, rgba(5, 255, 222, 0.2), rgba(10, 3, 40, 0.98));
+  background: radial-gradient(
+    circle at top,
+    rgba(5, 255, 222, 0.2),
+    rgba(10, 3, 40, 0.98)
+  );
 }
 
-/* Token */
-
-.petborn-token {
-  position: absolute;
-  bottom: 0.4rem;
-  left: 0.5rem; /* base, we adjust with translateX in JS via tile positions */
-  font-size: 1.4rem;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
-  transition: transform 0.2s ease;
-  pointer-events: none;
-}
-
-/* Game controls */
+/* GAME CONTROLS */
 
 .game-controls {
   padding: 0.9rem 1rem;
   border-radius: 1rem;
   border: 1px solid rgba(112, 255, 234, 0.45);
-  background: radial-gradient(circle at left, rgba(5, 40, 80, 0.9), rgba(5, 5, 20, 0.96));
+  background: radial-gradient(
+    circle at left,
+    rgba(5, 40, 80, 0.9),
+    rgba(5, 5, 20, 0.96)
+  );
   box-shadow: 0 0 14px rgba(112, 255, 234, 0.4);
   display: flex;
   flex-direction: column;
@@ -224,7 +282,11 @@ main {
   padding: 0.5rem 1.4rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 179, 255, 0.7);
-  background: radial-gradient(circle, rgba(255, 90, 241, 0.9), rgba(110, 0, 130, 0.95));
+  background: radial-gradient(
+    circle,
+    rgba(255, 90, 241, 0.9),
+    rgba(110, 0, 130, 0.95)
+  );
   color: #ffe1ff;
   font-size: 0.9rem;
   cursor: pointer;
@@ -264,7 +326,7 @@ main {
   color: #9c8dff;
 }
 
-/* Footer */
+/* FOOTER */
 
 .site-footer {
   padding: 0.9rem 1.25rem;
@@ -272,10 +334,14 @@ main {
   font-size: 0.8rem;
   color: #9fe6ff;
   border-top: 1px solid rgba(112, 255, 234, 0.4);
-  background: linear-gradient(90deg, rgba(5, 2, 12, 0.98), rgba(15, 5, 30, 0.98));
+  background: linear-gradient(
+    90deg,
+    rgba(5, 2, 12, 0.98),
+    rgba(15, 5, 30, 0.98)
+  );
 }
 
-/* Responsive */
+/* RESPONSIVE */
 
 @media (min-width: 768px) {
   .game-wrapper {
