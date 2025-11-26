@@ -3,6 +3,9 @@ const catEl = document.getElementById("cat");
 const resourcesContainer = document.getElementById("resources");
 const scoreEl = document.getElementById("score");
 
+const catStyleSelect = document.getElementById("cat-style");
+const randomizeBtn = document.getElementById("randomize-cat");
+
 let cat = {
   x: 0,
   y: 0,
@@ -21,6 +24,8 @@ let lastTime = null;
 let score = 0;
 let jumping = false;
 let jumpCooldown = false;
+
+const availableStyles = ["carly", "belle", "tabby", "neon"];
 
 // Get size of the game area
 function getGameSize() {
@@ -70,6 +75,13 @@ function spawnResources(count = 12) {
 
     resourcesContainer.appendChild(el);
   }
+}
+
+// Apply a cat style skin
+function applyCatStyle(styleName) {
+  if (!availableStyles.includes(styleName)) return;
+  catEl.setAttribute("data-style", styleName);
+  catStyleSelect.value = styleName;
 }
 
 // Input handling
@@ -126,6 +138,16 @@ window.addEventListener("keyup", (e) => {
       keys.right = false;
       break;
   }
+});
+
+// Customizer events
+catStyleSelect.addEventListener("change", () => {
+  applyCatStyle(catStyleSelect.value);
+});
+
+randomizeBtn.addEventListener("click", () => {
+  const idx = Math.floor(Math.random() * availableStyles.length);
+  applyCatStyle(availableStyles[idx]);
 });
 
 // Jump = quick hop animation, no position teleport
@@ -185,6 +207,11 @@ function update(dt) {
 
   // Auto-collect by proximity
   checkResourceHits();
+
+  // If we ever collect them all, respawn a new batch
+  if (resources.every((r) => r.collected)) {
+    spawnResources(12);
+  }
 }
 
 function checkResourceHits() {
@@ -235,6 +262,8 @@ function init() {
   positionCatInitial();
   spawnResources(12);
   catEl.classList.add("idle");
+  // default to neon style; sync dropdown
+  applyCatStyle("neon");
   requestAnimationFrame(loop);
 }
 
