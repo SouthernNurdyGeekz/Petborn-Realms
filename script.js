@@ -7,8 +7,6 @@ let cat = {
   x: 0,
   y: 0,
   speed: 220,
-  dirX: 0,
-  dirY: 0,
 };
 
 let keys = {
@@ -21,10 +19,10 @@ let keys = {
 let resources = [];
 let lastTime = null;
 let score = 0;
-let chopping = false;
-let chopCooldown = false;
+let jumping = false;
+let jumpCooldown = false;
 
-// Get local width/height of game area
+// Get size of the game area
 function getGameSize() {
   return {
     width: gameArea.clientWidth,
@@ -40,7 +38,6 @@ function positionCatInitial() {
 }
 
 function updateCatPosition() {
-  // Clamp within bounds
   const { width, height } = getGameSize();
   const halfW = 24; // half of cat width (48)
   const halfH = 20; // half of cat height (40)
@@ -52,8 +49,8 @@ function updateCatPosition() {
   catEl.style.top = (cat.y - halfH) + "px";
 }
 
-// Spawn resources around the map
-function spawnResources(count = 8) {
+// Spawn resources
+function spawnResources(count = 12) {
   resourcesContainer.innerHTML = "";
   resources = [];
   const { width, height } = getGameSize();
@@ -101,7 +98,7 @@ window.addEventListener("keydown", (e) => {
     case " ":
     case "Spacebar":
       e.preventDefault();
-      triggerChop();
+      triggerJump();
       break;
   }
 });
@@ -131,28 +128,26 @@ window.addEventListener("keyup", (e) => {
   }
 });
 
-function triggerChop() {
-  if (chopCooldown) return;
+// Jump = quick hop animation, no position teleport
+function triggerJump() {
+  if (jumpCooldown) return;
 
-  chopping = true;
-  chopCooldown = true;
-  catEl.classList.add("chopping");
-
-  setTimeout(() => {
-    catEl.classList.remove("chopping");
-    chopping = false;
-  }, 150);
+  jumping = true;
+  jumpCooldown = true;
+  catEl.classList.add("jumping");
 
   setTimeout(() => {
-    chopCooldown = false;
-  }, 180);
+    catEl.classList.remove("jumping");
+    jumping = false;
+  }, 260); // matches CSS animation length
 
-  checkResourceHits(true);
+  setTimeout(() => {
+    jumpCooldown = false;
+  }, 280);
 }
 
 // Update loop
 function update(dt) {
-  // Direction vector
   let dx = 0;
   let dy = 0;
   if (keys.up) dy -= 1;
@@ -174,7 +169,6 @@ function update(dt) {
     catEl.classList.add("moving");
     catEl.classList.remove("idle");
 
-    // Flip cat horizontally
     const scaleX = dx < 0 ? -1 : 1;
     catEl.style.transform = `scaleX(${scaleX})`;
   } else {
@@ -182,19 +176,19 @@ function update(dt) {
     catEl.classList.add("idle");
   }
 
-  // Update resources (bobbing animation handled by CSS; here we only enforce positions)
+  // Keep resources where they are (CSS handles bob)
   resources.forEach((r) => {
     if (r.collected) return;
     r.el.style.left = (r.x - 16) + "px";
     r.el.style.top = (r.y - 16) + "px";
   });
 
-  // Proximity effects
-  checkResourceHits(false);
+  // Auto-collect by proximity
+  checkResourceHits();
 }
 
-function checkResourceHits(collectIfChopping) {
-  const collectRadius = 45;
+function checkResourceHits() {
+  const collectRadius = 42;
 
   resources.forEach((r) => {
     if (r.collected) return;
@@ -206,10 +200,7 @@ function checkResourceHits(collectIfChopping) {
     if (dist < collectRadius) {
       r.el.classList.add("hit");
       setTimeout(() => r.el.classList.remove("hit"), 110);
-
-      if (collectIfChopping) {
-        collectResource(r);
-      }
+      collectResource(r);
     }
   });
 }
@@ -242,7 +233,7 @@ function loop(timestamp) {
 // Init
 function init() {
   positionCatInitial();
-  spawnResources(8);
+  spawnResources(12);
   catEl.classList.add("idle");
   requestAnimationFrame(loop);
 }
