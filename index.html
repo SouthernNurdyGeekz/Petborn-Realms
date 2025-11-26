@@ -15,7 +15,7 @@
     <nav class="main-nav">
       <a href="#title-screen">Home</a>
       <a href="#character-screen">Create</a>
-      <a href="#game">Board</a>
+      <a href="#game">Realms</a>
     </nav>
   </header>
 
@@ -30,7 +30,7 @@
         <h2 class="title-heading">Welcome to Petborn Realms</h2>
         <p class="title-text">
           This isn’t a pet <em>owner</em> game. <strong>You</strong> are the creature.
-          Your birthdate shapes your element. Your form shapes how you cross the board.
+          Your birthdate shapes your element. Your form shapes how you cross the realms.
         </p>
         <button
           id="start-game-btn"
@@ -48,7 +48,7 @@
       <p>
         Step 1: Enter your birthdate so the Realm can determine your elemental lean.<br>
         Step 2: Choose whether you are a cat or a dog (your starting form).<br>
-        Step 3: Choose your role (wizard/guardian/trickster style).
+        Step 3: Choose your role (wizard / guardian / trickster style).
       </p>
 
       <div class="character-grid">
@@ -97,7 +97,7 @@
           <h3>Your Petborn Preview</h3>
           <p>
             Once you bind your birthdate, form, and role, this panel will show your
-            element and a simple summary of who you are on the board.
+            element and a simple summary of who you are in the Realms.
           </p>
           <div class="preview-card" id="preview-card">
             <div class="preview-icon" id="preview-icon">🐾</div>
@@ -109,12 +109,13 @@
       </div>
     </section>
 
-    <!-- GAME BOARD SCREEN -->
+    <!-- REALMS SCREEN (replaces board) -->
     <section id="game" class="content-section hidden">
-      <h2>Board Prototype</h2>
+      <h2>Your Realms</h2>
       <p>
-        This is an early prototype of the board. Your Petborn is represented by a
-        token. Click <strong>Roll</strong> to move across tiles and see what you land on.
+        This is an early prototype of the Realms view. Instead of a dice board,
+        you see your Petborn and the elemental Realms you can enter. Later this
+        will look more like a world map with buildings, creatures, and paths.
       </p>
 
       <div class="player-summary" id="player-summary">
@@ -122,71 +123,48 @@
       </div>
 
       <div class="game-wrapper">
+        <!-- Left side: petborn card + realm buttons -->
         <div class="board-container">
-          <div id="pb-board" class="board">
-            <!-- 12 tiles in a 4x3 grid -->
-            <div class="board-tile" data-index="0" data-type="start">
-              <span class="board-tile-label">Start</span>
+          <div id="petborn-card" class="preview-card">
+            <div class="preview-icon" id="game-preview-icon">🐾</div>
+            <div class="preview-text" id="game-preview-text">
+              Your Petborn details will appear here once bound.
             </div>
-            <div class="board-tile" data-index="1" data-type="power">
-              <span class="board-tile-label">Power</span>
-            </div>
-            <div class="board-tile" data-index="2" data-type="crystal">
-              <span class="board-tile-label">Crystal</span>
-            </div>
-            <div class="board-tile" data-index="3" data-type="monster">
-              <span class="board-tile-label">Monster</span>
-            </div>
+          </div>
 
-            <div class="board-tile" data-index="4" data-type="potion">
-              <span class="board-tile-label">Potion</span>
-            </div>
-            <div class="board-tile" data-index="5" data-type="event">
-              <span class="board-tile-label">Event</span>
-            </div>
-            <div class="board-tile" data-index="6" data-type="monster">
-              <span class="board-tile-label">Monster</span>
-            </div>
-            <div class="board-tile" data-index="7" data-type="crystal">
-              <span class="board-tile-label">Crystal</span>
-            </div>
+          <p style="margin-top: 0.9rem;">
+            Choose a Realm to explore:
+          </p>
 
-            <div class="board-tile" data-index="8" data-type="power">
-              <span class="board-tile-label">Power</span>
-            </div>
-            <div class="board-tile" data-index="9" data-type="event">
-              <span class="board-tile-label">Event</span>
-            </div>
-            <div class="board-tile" data-index="10" data-type="monster">
-              <span class="board-tile-label">Monster</span>
-            </div>
-            <div class="board-tile" data-index="11" data-type="goal">
-              <span class="board-tile-label">Goal</span>
-            </div>
+          <div class="realm-buttons">
+            <button class="primary-button" onclick="enterRealm('Air')">
+              Air Realm
+            </button>
+            <button class="primary-button" onclick="enterRealm('Earth')">
+              Earth Realm
+            </button>
+            <button class="primary-button" onclick="enterRealm('Fire')">
+              Fire Realm
+            </button>
+            <button class="primary-button" onclick="enterRealm('Water')">
+              Water Realm
+            </button>
           </div>
         </div>
 
+        <!-- Right side: realm log -->
         <div class="game-controls">
-          <button id="roll-button" class="primary-button" onclick="rollOnBoard()">
-            Roll
-          </button>
-          <div id="roll-result" class="game-status">
-            Roll the die to move your Petborn.
-          </div>
-          <div id="tile-log" class="game-log">
-            You are at <span class="log-highlight">Start</span>.
+          <div id="realm-log" class="game-log">
+            Choose a Realm to see what kind of encounter you’d face there, based
+            on your element and role.
           </div>
         </div>
-      </div>
-
-      <div class="board-token-wrapper">
-        <span>Current token:</span>
-        <span id="pb-token" class="petborn-token">🐾</span>
       </div>
 
       <p class="game-note">
-        Later, this board will be skinned with art, animated tiles, and full combat.
-        For now, this is the skeleton that proves movement and tile events work.
+        Later, this Realms view will gain art, zoomable maps, and battles you can
+        launch from each area. For now, it’s our testing ground for identity
+        (birthdate → element → role) and realm flavor.
       </p>
     </section>
   </main>
