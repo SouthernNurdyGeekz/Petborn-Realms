@@ -1,4 +1,3 @@
-/* Basic layout */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,24 +6,24 @@
 
 body {
   min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #1c1030 0%, #03030a 55%, #000000 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9dfcff; /* No pure white text */
+  background: radial-gradient(circle at top, #1c1030 0%, #03030a 60%, #000000 100%);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #9dfcff; /* no pure white text */
 }
 
 #game-wrapper {
-  width: 960px;
+  width: 900px;
   max-width: 100vw;
-  padding: 12px 16px 16px;
-  background: linear-gradient(145deg, #090913, #151526);
+  padding: 10px 14px 14px;
   border-radius: 16px;
+  background: linear-gradient(145deg, #050510, #161628);
+  border: 1px solid rgba(147, 255, 238, 0.4);
   box-shadow:
-    0 0 18px rgba(0, 0, 0, 0.9),
-    0 0 18px rgba(117, 255, 228, 0.25);
-  border: 1px solid rgba(144, 255, 251, 0.23);
+    0 0 16px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(111, 255, 215, 0.25);
 }
 
 /* HUD */
@@ -33,34 +32,28 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 10px;
-  padding: 4px 4px 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid rgba(157, 252, 255, 0.18);
 }
 
 .game-title {
   font-size: 1.2rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #e9a7ff;
 }
 
 .game-subtitle {
-  display: inline-block;
   margin-left: 8px;
   font-size: 0.85rem;
-  color: #83f4ff;
-  opacity: 0.8;
-}
-
-.hud-right {
-  font-size: 0.95rem;
+  color: #87f1ff;
+  opacity: 0.85;
 }
 
 .label {
-  margin-right: 4px;
   color: #ffdb9a;
+  margin-right: 4px;
 }
 
 #score {
@@ -74,25 +67,22 @@ body {
   position: relative;
   margin-top: 8px;
   width: 100%;
-  padding-top: 45%; /* 16:9 aspect ratio hack */
+  height: 480px; /* Fixed so our math is sane */
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid rgba(185, 255, 245, 0.3);
-  background: radial-gradient(circle at 50% 10%, #1f5030 0%, #04301b 40%, #061613 100%);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
-  transform: perspective(900px) rotateX(14deg);
-  transform-origin: center 120%;
+  background: linear-gradient(180deg, #2b8042 0%, #14512a 40%, #062018 100%);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
 }
 
-/* A faint ground grid to fake depth */
 #ground {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.25) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.25) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.3) 1px, transparent 1px);
   background-size: 40px 40px;
-  mix-blend-mode: soft-light;
+  opacity: 0.4;
   pointer-events: none;
 }
 
@@ -100,51 +90,117 @@ body {
 
 #cat {
   position: absolute;
-  width: 38px;
-  height: 28px;
-  transform-origin: center center;
-  will-change: transform;
+  width: 48px;
+  height: 40px;
+  /* we'll set left/top in JS */
   pointer-events: none;
+  transform-origin: center center;
 }
 
-/* Body is a rounded rectangle */
-#cat .cat-body {
+.cat-body {
   position: relative;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 20% 10%, #ffe4ff 0%, #ff92f9 25%, #e24edc 70%, #7d1a92 100%);
-  border-radius: 18px 18px 16px 16px;
-  box-shadow:
-    0 0 6px rgba(255, 166, 255, 0.9),
-    0 6px 8px rgba(0, 0, 0, 0.65);
 }
 
-/* Cat ears */
-#cat .cat-body::before,
-#cat .cat-body::after {
+/* Body oval */
+.cat-body::before {
   content: "";
   position: absolute;
-  top: -10px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  top: 12px;
+  border-radius: 18px;
+  background: radial-gradient(circle at 20% 10%, #ffe4ff 0%, #ff92f9 26%, #e24edc 65%, #7d1a92 100%);
+  box-shadow:
+    0 0 6px rgba(255, 166, 255, 0.9),
+    0 6px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Head */
+.cat-head {
+  position: absolute;
+  top: 0;
+  left: 9px;
+  right: 13px;
+  height: 22px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 30% 0%, #fff0ff 0%, #ffcafc 45%, #ea64df 80%);
+  box-shadow:
+    0 0 4px rgba(255, 194, 255, 0.9),
+    0 3px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Ears */
+.cat-ear {
+  position: absolute;
+  top: -8px;
   width: 10px;
   height: 12px;
   background: linear-gradient(145deg, #ffb8ff, #e24edc);
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
-#cat .cat-body::before {
-  left: 6px;
+.ear-left {
+  left: 2px;
 }
 
-#cat .cat-body::after {
-  right: 6px;
+.ear-right {
+  right: 2px;
+}
+
+.cat-face {
+  position: absolute;
+  inset: 5px 5px 4px 5px;
+}
+
+/* Eyes */
+.cat-eye {
+  position: absolute;
+  top: 4px;
+  width: 4px;
+  height: 7px;
+  border-radius: 4px;
+  background: radial-gradient(circle at 50% 0%, #ffff9a 0%, #ffdf3f 35%, #5f3100 100%);
+  box-shadow: 0 0 3px rgba(255, 239, 157, 0.7);
+}
+
+.eye-left {
+  left: 4px;
+}
+
+.eye-right {
+  right: 4px;
+}
+
+/* Legs */
+
+.cat-legs {
+  position: absolute;
+  bottom: 2px;
+  left: 6px;
+  right: 8px;
+  height: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cat-leg {
+  width: 6px;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f7c7ff 0%, #c554f1 80%);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 /* Tail */
-#cat .cat-tail {
+
+.cat-tail {
   position: absolute;
-  right: -9px;
-  top: 7px;
-  width: 14px;
+  right: -10px;
+  bottom: 14px;
+  width: 18px;
   height: 8px;
   border-radius: 12px;
   background: radial-gradient(circle at 0% 50%, #ffd0ff 0%, #cc50f1 55%, #6b1a85 100%);
@@ -152,49 +208,53 @@ body {
   box-shadow: 0 0 4px rgba(255, 180, 255, 0.7);
 }
 
-/* Idle tail wiggle */
-#cat.idle .cat-tail {
-  animation: tail-wiggle 1.1s ease-in-out infinite;
-}
+/* Idle / run tail + leg animations */
 
-/* Walking: body bobbing & faster tail */
-#cat.moving {
-  animation: cat-bob 0.25s ease-in-out infinite alternate;
+#cat.idle .cat-tail {
+  animation: tail-idle 1s ease-in-out infinite;
 }
 
 #cat.moving .cat-tail {
-  animation: tail-run 0.18s ease-in-out infinite;
+  animation: tail-run 0.2s ease-in-out infinite;
 }
 
-/* Chopping: quick slash pulse */
+#cat.moving .cat-leg {
+  animation: leg-walk 0.24s ease-in-out infinite alternate;
+}
+
 #cat.chopping {
-  animation: cat-chop-pulse 0.14s ease-out;
+  animation: cat-chop 0.15s ease-out;
 }
 
-@keyframes tail-wiggle {
-  0% { transform: rotateZ(10deg); }
-  50% { transform: rotateZ(-8deg); }
-  100% { transform: rotateZ(10deg); }
+@keyframes tail-idle {
+  0% { transform: rotateZ(12deg); }
+  50% { transform: rotateZ(-10deg); }
+  100% { transform: rotateZ(12deg); }
 }
 
 @keyframes tail-run {
-  0% { transform: rotateZ(25deg); }
+  0% { transform: rotateZ(28deg); }
   50% { transform: rotateZ(-20deg); }
-  100% { transform: rotateZ(25deg); }
+  100% { transform: rotateZ(28deg); }
 }
 
-@keyframes cat-bob {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-3px); }
+@keyframes leg-walk {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(2px); }
 }
 
-@keyframes cat-chop-pulse {
-  0%   { transform: scale(1) translateY(-1px); }
-  50%  { transform: scale(1.1) translateY(-3px); }
-  100% { transform: scale(1) translateY(0); }
+@keyframes cat-chop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08) translateY(-2px); }
+  100% { transform: scale(1); }
 }
 
-/* Resources (fake 3D blocks / crystals) */
+/* Debug outline so you KNOW that cat exists */
+#cat {
+  outline: 1px solid rgba(0, 255, 234, 0.3);
+}
+
+/* Resources */
 
 #resources {
   position: absolute;
@@ -203,37 +263,34 @@ body {
 
 .resource {
   position: absolute;
-  width: 34px;
-  height: 34px;
-  transform-origin: center bottom;
-  will-change: transform;
+  width: 32px;
+  height: 32px;
 }
 
-/* Base shadow */
+/* Shadow */
 .resource::after {
   content: "";
   position: absolute;
   bottom: -6px;
   left: 50%;
-  width: 38px;
+  width: 32px;
   height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.75) 0%, transparent 70%);
   transform: translateX(-50%);
-  opacity: 0.7;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
 }
 
-/* Rock-like cube */
-.resource.rock {
+/* Cube block */
+.resource.block {
+  border-radius: 6px;
   background:
     linear-gradient(135deg, #c0f0ff 0%, #6ad2ff 40%, #2b7fb2 70%, #143956 100%);
-  border-radius: 6px;
   box-shadow:
-    -4px -4px 8px rgba(255, 255, 255, 0.38),
-    4px 6px 8px rgba(0, 0, 0, 0.85);
+    -4px -4px 8px rgba(255, 255, 255, 0.3),
+    4px 6px 8px rgba(0, 0, 0, 0.9);
 }
 
-/* Crystal-like */
+/* Crystal block */
 .resource.crystal {
   clip-path: polygon(50% 0%, 90% 35%, 70% 100%, 30% 100%, 10% 35%);
   background:
@@ -243,40 +300,41 @@ body {
     0 10px 12px rgba(0, 0, 0, 0.9);
 }
 
-/* Hover / ambient bobbing */
+/* Bobbing animation */
+
 .resource.bobbing {
   animation: resource-bob 1.4s ease-in-out infinite alternate;
 }
 
 @keyframes resource-bob {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(0, -6px, 0) scale(1.03); }
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-6px); }
 }
 
-/* Hit flash */
+/* Hit / collected */
+
 .resource.hit {
-  animation: resource-hit 0.14s ease-out;
+  animation: resource-hit 0.12s ease-out;
 }
 
 @keyframes resource-hit {
-  0%   { filter: brightness(1.3); transform: scale(1.1); }
+  0%   { filter: brightness(1.4); transform: scale(1.06); }
   100% { filter: brightness(1);   transform: scale(1); }
 }
 
-/* Collected vanish */
 .resource.collected {
-  animation: resource-vanish 0.2s ease-out forwards;
+  animation: resource-vanish 0.22s ease-out forwards;
 }
 
 @keyframes resource-vanish {
   0%   { opacity: 1; transform: translateY(-4px) scale(1); }
-  100% { opacity: 0; transform: translateY(-18px) scale(0.5); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.4); }
 }
 
-/* Controls footer */
+/* Footer controls */
 
 .controls {
-  margin-top: 10px;
+  margin-top: 8px;
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
