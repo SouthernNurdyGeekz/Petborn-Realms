@@ -1,23 +1,21 @@
-// Simple "2.5D" cat forager
 const gameArea = document.getElementById("game-area");
 const catEl = document.getElementById("cat");
 const resourcesContainer = document.getElementById("resources");
 const scoreEl = document.getElementById("score");
 
-// Internal state
 let cat = {
   x: 0,
   y: 0,
-  speed: 210, // pixels per second
+  speed: 220,
   dirX: 0,
-  dirY: 0
+  dirY: 0,
 };
 
 let keys = {
   up: false,
   down: false,
   left: false,
-  right: false
+  right: false,
 };
 
 let resources = [];
@@ -26,42 +24,53 @@ let score = 0;
 let chopping = false;
 let chopCooldown = false;
 
-// Helpers to get game bounds in pixels
-function getGameRect() {
-  const rect = gameArea.getBoundingClientRect();
-  // "Floor" area is slightly inset so we don't clip
-  const padding = 20;
+// Get local width/height of game area
+function getGameSize() {
   return {
-    left: padding,
-    top: padding,
-    right: rect.width - padding,
-    bottom: rect.height - padding
+    width: gameArea.clientWidth,
+    height: gameArea.clientHeight,
   };
 }
 
-// Center the cat at start
 function positionCatInitial() {
-  const rect = getGameRect();
-  cat.x = (rect.right - rect.left) / 2;
-  cat.y = (rect.bottom - rect.top) / 2;
+  const { width, height } = getGameSize();
+  cat.x = width / 2;
+  cat.y = height / 2;
+  updateCatPosition();
 }
 
-// Spawn some fake 3D resources
-function spawnResources(count = 7) {
+function updateCatPosition() {
+  // Clamp within bounds
+  const { width, height } = getGameSize();
+  const halfW = 24; // half of cat width (48)
+  const halfH = 20; // half of cat height (40)
+
+  cat.x = Math.max(halfW, Math.min(width - halfW, cat.x));
+  cat.y = Math.max(halfH, Math.min(height - halfH, cat.y));
+
+  catEl.style.left = (cat.x - halfW) + "px";
+  catEl.style.top = (cat.y - halfH) + "px";
+}
+
+// Spawn resources around the map
+function spawnResources(count = 8) {
   resourcesContainer.innerHTML = "";
   resources = [];
-
-  const rect = getGameRect();
+  const { width, height } = getGameSize();
 
   for (let i = 0; i < count; i++) {
-    const type = Math.random() < 0.55 ? "rock" : "crystal";
+    const type = Math.random() < 0.55 ? "block" : "crystal";
     const el = document.createElement("div");
     el.className = `resource ${type} bobbing`;
 
-    const x = rect.left + 40 + Math.random() * (rect.right - rect.left - 80);
-    const y = rect.top + 40 + Math.random() * (rect.bottom - rect.top - 80);
+    const margin = 40;
+    const x = margin + Math.random() * (width - margin * 2);
+    const y = margin + Math.random() * (height - margin * 2);
 
     resources.push({ el, x, y, collected: false });
+    el.style.left = (x - 16) + "px";
+    el.style.top = (y - 16) + "px";
+
     resourcesContainer.appendChild(el);
   }
 }
@@ -122,78 +131,70 @@ window.addEventListener("keyup", (e) => {
   }
 });
 
-// Chop action
 function triggerChop() {
   if (chopCooldown) return;
 
   chopping = true;
   chopCooldown = true;
-
   catEl.classList.add("chopping");
 
   setTimeout(() => {
     catEl.classList.remove("chopping");
     chopping = false;
-  }, 140);
+  }, 150);
 
   setTimeout(() => {
     chopCooldown = false;
   }, 180);
 
-  // Check collisions right when we chop
   checkResourceHits(true);
 }
 
-// Update movement & state
+// Update loop
 function update(dt) {
-  const rect = getGameRect();
+  // Direction vector
+  let dx = 0;
+  let dy = 0;
+  if (keys.up) dy -= 1;
+  if (keys.down) dy += 1;
+  if (keys.left) dx -= 1;
+  if (keys.right) dx += 1;
 
-  // Determine direction vector
-  cat.dirX = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
-  cat.dirY = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
-
-  const length = Math.hypot(cat.dirX, cat.dirY);
+  const length = Math.hypot(dx, dy);
   if (length > 0) {
-    cat.dirX /= length;
-    cat.dirY /= length;
+    dx /= length;
+    dy /= length;
   }
 
-  // Move the cat
   if (length > 0) {
-    const dist = cat.speed * dt;
-    cat.x += cat.dirX * dist;
-    cat.y += cat.dirY * dist;
+    cat.x += dx * cat.speed * dt;
+    cat.y += dy * cat.speed * dt;
+    updateCatPosition();
 
-    // Clamp within bounds
-    cat.x = Math.max(rect.left, Math.min(rect.right, cat.x));
-    cat.y = Math.max(rect.top, Math.min(rect.bottom, cat.y));
-
-    // Moving class for animation
     catEl.classList.add("moving");
     catEl.classList.remove("idle");
 
-    // Flip cat based on direction
-    const scaleX = cat.dirX < 0 ? -1 : 1;
-    catEl.style.transform = `translate(-50%, -50%) translate(${cat.x}px, ${cat.y}px) scaleX(${scaleX})`;
+    // Flip cat horizontally
+    const scaleX = dx < 0 ? -1 : 1;
+    catEl.style.transform = `scaleX(${scaleX})`;
   } else {
     catEl.classList.remove("moving");
     catEl.classList.add("idle");
-    catEl.style.transform = `translate(-50%, -50%) translate(${cat.x}px, ${cat.y}px)`;
   }
 
-  // Update resources visual position
+  // Update resources (bobbing animation handled by CSS; here we only enforce positions)
   resources.forEach((r) => {
     if (r.collected) return;
-    r.el.style.transform = `translate(-50%, -100%) translate(${r.x}px, ${r.y}px)`;
+    r.el.style.left = (r.x - 16) + "px";
+    r.el.style.top = (r.y - 16) + "px";
   });
 
-  // Check “proximity” (soft glow / hit flash only if chopping)
+  // Proximity effects
   checkResourceHits(false);
 }
 
-// Collision / hit detection
 function checkResourceHits(collectIfChopping) {
-  const catRadius = 24;
+  const collectRadius = 45;
 
   resources.forEach((r) => {
     if (r.collected) return;
@@ -202,15 +203,9 @@ function checkResourceHits(collectIfChopping) {
     const dy = r.y - cat.y;
     const dist = Math.hypot(dx, dy);
 
-    const hitRange = 40;
-
-    if (dist < hitRange) {
+    if (dist < collectRadius) {
       r.el.classList.add("hit");
-
-      // Remove hit class after very short time
-      setTimeout(() => {
-        r.el.classList.remove("hit");
-      }, 120);
+      setTimeout(() => r.el.classList.remove("hit"), 110);
 
       if (collectIfChopping) {
         collectResource(r);
@@ -225,9 +220,8 @@ function collectResource(resource) {
   resource.el.classList.add("collected");
 
   score += 1;
-  scoreEl.textContent = score.toString();
+  scoreEl.textContent = String(score);
 
-  // Remove from DOM after animation
   setTimeout(() => {
     if (resource.el && resource.el.parentNode) {
       resource.el.parentNode.removeChild(resource.el);
@@ -235,7 +229,7 @@ function collectResource(resource) {
   }, 220);
 }
 
-// Game loop
+// Main loop
 function loop(timestamp) {
   if (!lastTime) lastTime = timestamp;
   const dt = (timestamp - lastTime) / 1000;
@@ -253,7 +247,7 @@ function init() {
   requestAnimationFrame(loop);
 }
 
-// Delay init slightly so layout is ready
+// Make sure layout is ready first
 window.addEventListener("load", () => {
-  setTimeout(init, 60);
+  init();
 });
