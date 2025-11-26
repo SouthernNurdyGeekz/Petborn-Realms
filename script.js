@@ -81,7 +81,9 @@ function spawnResources(count = 12) {
 function applyCatStyle(styleName) {
   if (!availableStyles.includes(styleName)) return;
   catEl.setAttribute("data-style", styleName);
-  catStyleSelect.value = styleName;
+  if (catStyleSelect) {
+    catStyleSelect.value = styleName;
+  }
 }
 
 // Input handling
@@ -107,7 +109,10 @@ window.addEventListener("keydown", (e) => {
     case "D":
       keys.right = true;
       break;
+
+    // Spacebar on different browsers: " ", "Space", "Spacebar"
     case " ":
+    case "Space":
     case "Spacebar":
       e.preventDefault();
       triggerJump();
@@ -141,14 +146,18 @@ window.addEventListener("keyup", (e) => {
 });
 
 // Customizer events
-catStyleSelect.addEventListener("change", () => {
-  applyCatStyle(catStyleSelect.value);
-});
+if (catStyleSelect) {
+  catStyleSelect.addEventListener("change", () => {
+    applyCatStyle(catStyleSelect.value);
+  });
+}
 
-randomizeBtn.addEventListener("click", () => {
-  const idx = Math.floor(Math.random() * availableStyles.length);
-  applyCatStyle(availableStyles[idx]);
-});
+if (randomizeBtn) {
+  randomizeBtn.addEventListener("click", () => {
+    const idx = Math.floor(Math.random() * availableStyles.length);
+    applyCatStyle(availableStyles[idx]);
+  });
+}
 
 // Jump = quick hop animation, no position teleport
 function triggerJump() {
@@ -202,16 +211,22 @@ function update(dt) {
   resources.forEach((r) => {
     if (r.collected) return;
     r.el.style.left = (r.x - 16) + "px";
-    r.el.style.top = (r.y - 16) + "px";
+    r.el.style.top = (yClamp(r.y) - 16) + "px";
   });
 
   // Auto-collect by proximity
   checkResourceHits();
 
   // If we ever collect them all, respawn a new batch
-  if (resources.every((r) => r.collected)) {
+  if (resources.length > 0 && resources.every((r) => r.collected)) {
     spawnResources(12);
   }
+}
+
+// Small safety so resources never get shoved off-screen
+function yClamp(y) {
+  const { height } = getGameSize();
+  return Math.max(20, Math.min(height - 20, y));
 }
 
 function checkResourceHits() {
