@@ -1,99 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Petborn Realms</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
-  <!-- BINDING SCREEN -->
-  <section id="binding-screen">
-    <h2>Bind Your Petborn</h2>
-
-    <label>Pet Name:</label>
-    <input id="pet-name-input" type="text" placeholder="Your pet’s name">
-
-    <label>Birth Date:</label>
-    <input id="birthdate-input" type="date">
-
-    <label>Form:</label>
-    <select id="form-select">
-      <option value="cat">Cat</option>
-      <option value="dog">Dog</option>
-    </select>
-
-    <label>Pattern:</label>
-    <select id="pattern-select">
-      <option value="spots">Spots</option>
-      <option value="stripes">Stripes</option>
-      <option value="solid">Solid Color</option>
-    </select>
-
-    <button id="bind-pet-btn">Bind to Realm</button>
-  </section>
-
-  <!-- BOUND SCREEN -->
-  <section id="bound-screen" hidden>
-    <h2>Petborn Bound!</h2>
-    <p id="bound-message"></p>
-
-    <div id="bound-card">
-      <p id="card-name"></p>
-      <p id="card-line-1"></p>
-      <p id="card-line-2"></p>
-      <p id="card-line-3"></p>
-      <p id="card-line-4"></p>
+  <header class="site-header">
+    <div class="logo-title">
+      <h1>Petborn Realms</h1>
+      <p class="tagline">A browser world where you are the pet.</p>
     </div>
+    <nav class="main-nav">
+      <a href="#title-screen">Home</a>
+      <a href="#character-screen">Create</a>
+      <a href="#game">Board</a>
+    </nav>
+  </header>
 
-    <button id="start-game">Continue to Class Selection</button>
-  </section>
+  <main>
+    <!-- TITLE SCREEN -->
+    <section id="title-screen" class="full-screen-panel">
+      <div class="title-inner">
+        <div class="title-creatures">
+          <span class="title-pet">🐱</span>
+          <span class="title-pet">🐶</span>
+        </div>
+        <h2 class="title-heading">Welcome to Petborn Realms</h2>
+        <p class="title-text">
+          This isn’t a pet <em>owner</em> game. <strong>You</strong> are the creature.
+          Your birthdate shapes your element. Your form shapes how you cross the board.
+        </p>
+        <!-- NOTE: onclick added here -->
+        <button
+          id="start-game-btn"
+          class="primary-button large"
+          onclick="showCharacter()"
+        >
+          Start Your Journey
+        </button>
+      </div>
+    </section>
 
-  <!-- CLASS SELECTION / STATS -->
-  <section id="build-screen" hidden>
-    <h2>Choose Your Class</h2>
+    <!-- CHARACTER CREATION SCREEN -->
+    <section id="character-screen" class="content-section hidden">
+      <h2>Create Your Petborn</h2>
+      <p>
+        Step 1: Enter your birthdate so the Realm can determine your elemental lean.
+        Step 2: Choose whether you are a cat or a dog. This is your starting form.
+      </p>
 
-    <label>Your Role:</label>
-    <select id="role-select">
-      <option value="">-- Choose --</option>
-      <option value="Ranger">Ranger</option>
-      <option value="Wizard">Wizard</option>
-      <option value="Warrior">Warrior</option>
-      <option value="Rogue">Rogue</option>
-    </select>
+      <div class="character-grid">
+        <div class="character-form">
+          <label for="birthdate" class="field-label">Birthdate</label>
+          <input type="date" id="birthdate" class="field-input" />
 
-    <button id="roll-stats-btn">Roll Stats</button>
+          <fieldset class="field-group">
+            <legend class="field-label">Choose Your Form</legend>
+            <label class="choice-pill">
+              <input type="radio" name="species" value="cat" />
+              <span class="choice-visual">🐱 Cat</span>
+            </label>
+            <label class="choice-pill">
+              <input type="radio" name="species" value="dog" />
+              <span class="choice-visual">🐶 Dog</span>
+            </label>
+          </fieldset>
 
-    <div id="stats-area">
-      <p>Power:   <span id="stat-power">0</span></p>
-      <p>Defense: <span id="stat-defense">0</span></p>
-      <p>Magic:   <span id="stat-magic">0</span></p>
-      <p>Speed:   <span id="stat-speed">0</span></p>
-      <p>Luck:    <span id="stat-luck">0</span></p>
-      <p>Focus:   <span id="stat-focus">0</span></p>
-    </div>
+          <!-- NOTE: onclick added here -->
+          <button
+            id="create-character-btn"
+            class="primary-button"
+            onclick="bindPetborn()"
+          >
+            Bind to Your Realm
+          </button>
+        </div>
 
-    <button id="enter-board-btn" disabled>Enter the Board</button>
-  </section>
+        <div class="character-preview" id="character-preview">
+          <h3>Your Petborn Preview</h3>
+          <p>
+            Once you bind your birthdate and form, this panel will show your
+            element and a simple summary of who you are in the board.
+          </p>
+          <div class="preview-card" id="preview-card">
+            <div class="preview-icon" id="preview-icon">🐾</div>
+            <div class="preview-text" id="preview-text">
+              No Petborn bound yet. Fill out the form to begin.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <!-- BOARD SCREEN -->
-  <section id="board-screen" hidden>
-    <h2>Infinity-8 Board</h2>
+    <!-- GAME BOARD SCREEN -->
+    <section id="game" class="content-section hidden">
+      <h2>Board Prototype</h2>
+      <p>
+        This is an early prototype of the board. Your Petborn is represented by a
+        token. Click <strong>Roll</strong> to move across tiles and see what you land on.
+      </p>
 
-    <p>You are currently on Tile: <span id="current-tile-label">1</span></p>
+      <div class="player-summary" id="player-summary">
+        No Petborn bound yet. Create your Petborn first for a personalized summary.
+      </div>
 
-    <div id="board-container"></div>
+      <div class="game-wrapper">
+        <div class="board-container">
+          <div id="pb-board" class="board">
+            <!-- 12 tiles in a 4x3 grid -->
+            <div class="board-tile" data-index="0" data-type="start">
+              <span class="board-tile-label">Start</span>
+            </div>
+            <div class="board-tile" data-index="1" data-type="power">
+              <span class="board-tile-label">Power</span>
+            </div>
+            <div class="board-tile" data-index="2" data-type="crystal">
+              <span class="board-tile-label">Crystal</span>
+            </div>
+            <div class="board-tile" data-index="3" data-type="monster">
+              <span class="board-tile-label">Monster</span>
+            </div>
 
-    <p id="tile-effect-text"></p>
+            <div class="board-tile" data-index="4" data-type="potion">
+              <span class="board-tile-label">Potion</span>
+            </div>
+            <div class="board-tile" data-index="5" data-type="event">
+              <span class="board-tile-label">Event</span>
+            </div>
+            <div class="board-tile" data-index="6" data-type="monster">
+              <span class="board-tile-label">Monster</span>
+            </div>
+            <div class="board-tile" data-index="7" data-type="crystal">
+              <span class="board-tile-label">Crystal</span>
+            </div>
 
-    <button id="move-one-btn">Move +1</button>
-  </section>
+            <div class="board-tile" data-index="8" data-type="power">
+              <span class="board-tile-label">Power</span>
+            </div>
+            <div class="board-tile" data-index="9" data-type="event">
+              <span class="board-tile-label">Event</span>
+            </div>
+            <div class="board-tile" data-index="10" data-type="monster">
+              <span class="board-tile-label">Monster</span>
+            </div>
+            <div class="board-tile" data-index="11" data-type="goal">
+              <span class="board-tile-label">Goal</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-controls">
+          <button id="roll-button" class="primary-button" onclick="rollOnBoard()">
+            Roll
+          </button>
+          <div id="roll-result" class="game-status">
+            Roll the die to move your Petborn.
+          </div>
+          <div id="tile-log" class="game-log">
+            You are at <span class="log-highlight">Start</span>.
+          </div>
+        </div>
+      </div>
+
+      <div class="board-token-wrapper">
+        <span>Current token:</span>
+        <span id="pb-token" class="petborn-token">🐾</span>
+      </div>
+
+      <p class="game-note">
+        Later, this board will be skinned with art, animated tiles, and full combat.
+        For now, this is the skeleton that proves movement and tile events work.
+      </p>
+    </section>
+  </main>
 
   <footer class="site-footer">
     <p>© SouthernNurdyGeekz LLC · Petborn Realms</p>
   </footer>
 
+  <!-- Important: script at the very bottom -->
   <script src="script.js"></script>
 </body>
 </html>
