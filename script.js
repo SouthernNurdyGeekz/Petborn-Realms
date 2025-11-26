@@ -1,5 +1,5 @@
 // Simple debug ping so we know script loaded
-console.log("Petborn Realms script loaded");
+console.log("Petborn Realms script loaded (realms prototype)");
 
 let playerState = {
   birthdate: null,
@@ -8,10 +8,6 @@ let playerState = {
   species: null,
   role: null,
 };
-
-let boardTiles = [];
-let currentIndex = 0;
-let isMoving = false;
 
 function $(id) {
   return document.getElementById(id);
@@ -100,7 +96,9 @@ function bindPetborn() {
   const previewIcon = $("preview-icon");
   const previewText = $("preview-text");
   const playerSummary = $("player-summary");
-  const tokenEmoji = $("pb-token");
+  const tokenEmoji = $("pb-token"); // not used now but left for future
+  const gamePreviewIcon = $("game-preview-icon");
+  const gamePreviewText = $("game-preview-text");
 
   if (!birthInput || !previewText) return;
 
@@ -143,18 +141,24 @@ function bindPetborn() {
   const speciesEmoji = species === "cat" ? "🐱" : "🐶";
   if (previewIcon) previewIcon.textContent = speciesEmoji;
 
-  previewText.textContent =
+  const coreText =
     sign +
     " (" +
     element +
     ") · " +
     role +
     " · " +
-    (species === "cat" ? "Petborn Cat" : "Petborn Dog") +
-    ". This is your starting identity on the board.";
+    (species === "cat" ? "Petborn Cat" : "Petborn Dog");
 
-  if (tokenEmoji) {
-    tokenEmoji.textContent = speciesEmoji;
+  previewText.textContent =
+    coreText + ". This is your starting identity in the Realms.";
+
+  // Mirror into Realms panel
+  if (gamePreviewIcon) gamePreviewIcon.textContent = speciesEmoji;
+  if (gamePreviewText) {
+    gamePreviewText.textContent =
+      coreText +
+      ". Later this card will show stats, health, and equipped powers.";
   }
 
   if (playerSummary) {
@@ -167,117 +171,87 @@ function bindPetborn() {
       sign +
       " · Element: " +
       element +
-      ". This will later influence your cards, battles, and growth.";
+      ". This will later influence your encounters in each Realm.";
   }
 
   showGame();
 }
 
-// --- Board logic ---
-function initBoard() {
-  boardTiles = Array.from(document.querySelectorAll(".board-tile"));
-  currentIndex = 0;
-  isMoving = false;
+// Realm selection
+function enterRealm(realm) {
+  const log = $("realm-log");
+  if (!log) return;
 
-  if (boardTiles.length === 0) return;
-
-  placeTokenOnTile(currentIndex);
-  describeTile(boardTiles[currentIndex]);
-}
-
-function placeTokenOnTile(index) {
-  if (!boardTiles.length) return;
-  boardTiles.forEach((tile) => tile.classList.remove("active-tile"));
-  const tile = boardTiles[index];
-  if (!tile) return;
-  tile.classList.add("active-tile");
-}
-
-function describeTile(tile) {
-  const tileLog = $("tile-log");
-  if (!tile || !tileLog) return;
-
-  const type = tile.dataset.type || "event";
-  const labelEl = tile.querySelector(".board-tile-label");
-  const label = labelEl ? labelEl.textContent.trim() : "Tile";
-
-  let message = "";
-  switch (type) {
-    case "start":
-      message = "You are at the starting tile. Take your first steps.";
-      break;
-    case "goal":
-      message =
-        "You reached the goal! Later this will trigger rewards and new boards.";
-      break;
-    case "power":
-      message = "Power tile: you would draw from the Power deck here.";
-      break;
-    case "crystal":
-      message = "Crystal tile: you would gain or upgrade a crystal here.";
-      break;
-    case "monster":
-      message = "Monster tile: a battle would start here in a future build.";
-      break;
-    case "potion":
-      message = "Potion tile: you would recover or gain buffs here.";
-      break;
-    case "event":
-    default:
-      message = "Event tile: something unusual happens here.";
-      break;
+  if (!playerState.sign || !playerState.element || !playerState.role) {
+    log.textContent =
+      "You haven’t bound a Petborn yet. Go back to Create and bind your birthdate, form, and role first.";
+    return;
   }
 
-  tileLog.innerHTML =
-    'You are at <span class="log-highlight">' +
-    label +
-    "</span>. " +
-    message;
+  const { element, role, species, sign } = playerState;
+
+  let advantageText = "";
+  if (
+    (realm === "Air" && element === "Air") ||
+    (realm === "Earth" && element === "Earth") ||
+    (realm === "Fire" && element === "Fire") ||
+    (realm === "Water" && element === "Water")
+  ) {
+    advantageText =
+      "This is your home element. You gain an advantage on most encounters here.";
+  } else {
+    advantageText =
+      "This Realm doesn’t match your element, so conditions are trickier but rewards can be higher.";
+  }
+
+  let roleFlavor = "";
+  switch (role) {
+    case "Wizard":
+      roleFlavor =
+        "As a Wizard, you’re more likely to trigger spell challenges, puzzles, and magical duels.";
+      break;
+    case "Guardian":
+      roleFlavor =
+        "As a Guardian, expect defense missions, shielding allies, and holding lines against waves of enemies.";
+      break;
+    case "Trickster":
+      roleFlavor =
+        "As a Trickster, you’ll see stealth paths, pranks, and high-risk/high-reward gambits.";
+      break;
+    default:
+      roleFlavor = "Your role shapes the type of encounters you’ll see.";
+  }
+
+  const speciesText =
+    species === "cat"
+      ? "Your feline instincts help with agility and awareness."
+      : "Your canine instincts help with loyalty and pack-based bonuses.";
+
+  log.innerHTML =
+    "<strong>" +
+    realm +
+    " Realm</strong><br>" +
+    "Sign: " +
+    sign +
+    " · Element: " +
+    element +
+    " · Role: " +
+    role +
+    "<br>" +
+    advantageText +
+    "<br>" +
+    roleFlavor +
+    "<br>" +
+    speciesText +
+    "<br><br>" +
+    "In a later build, clicking this Realm would open a full scene with map tiles, NPCs, and battles.";
 }
 
-function rollDie() {
-  return Math.floor(Math.random() * 6) + 1;
-}
-
-function rollOnBoard() {
-  const rollButton = $("roll-button");
-  const rollResult = $("roll-result");
-
-  if (!boardTiles.length || !rollButton || !rollResult) return;
-  if (isMoving) return;
-
-  const steps = rollDie();
-  rollResult.textContent = "You rolled a " + steps + ".";
-  isMoving = true;
-  rollButton.disabled = true;
-
-  let remaining = steps;
-
-  const intervalId = setInterval(() => {
-    if (remaining <= 0) {
-      clearInterval(intervalId);
-      const tile = boardTiles[currentIndex];
-      describeTile(tile);
-      isMoving = false;
-      rollButton.disabled = false;
-      return;
-    }
-
-    if (currentIndex < boardTiles.length - 1) {
-      currentIndex += 1;
-    }
-    placeTokenOnTile(currentIndex);
-    remaining -= 1;
-  }, 260);
-}
-
-// Initialize once (script is at the bottom)
+// Initialize
 (function initialSetup() {
   const tagline = document.querySelector(".tagline");
   if (tagline) {
-    tagline.textContent += " · Prototype wired";
+    tagline.textContent += " · Realms prototype";
   }
-
-  initBoard();
   showTitle();
 })();
