@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PetBorn Realms - Cat Forager</title>
+  <title>PetBorn Realms - Chibi Cat Forager</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -19,22 +19,37 @@
     </header>
 
     <div id="game-area">
+      <!-- Ground -->
       <div id="ground"></div>
 
       <!-- Chibi cat character -->
       <div id="cat">
         <div class="cat-body">
+          <div class="cat-head">
+            <div class="cat-ear ear-left"></div>
+            <div class="cat-ear ear-right"></div>
+            <div class="cat-face">
+              <div class="cat-eye eye-left"></div>
+              <div class="cat-eye eye-right"></div>
+            </div>
+          </div>
+          <div class="cat-legs">
+            <div class="cat-leg leg-front-left"></div>
+            <div class="cat-leg leg-front-right"></div>
+            <div class="cat-leg leg-back-left"></div>
+            <div class="cat-leg leg-back-right"></div>
+          </div>
           <div class="cat-tail"></div>
         </div>
       </div>
 
-      <!-- Resources will be injected here by script.js -->
+      <!-- Resources container -->
       <div id="resources"></div>
     </div>
 
     <footer class="controls">
       <div>Move: WASD / Arrow Keys</div>
-      <div>Chop: Space Bar (near a resource)</div>
+      <div>Chop: Space Bar (near a block)</div>
     </footer>
   </div>
 
