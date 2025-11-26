@@ -1,5 +1,5 @@
 // Simple debug ping so we know script loaded
-console.log("Petborn Realms script loaded (realms prototype)");
+console.log("Petborn Realms script loaded (field prototype)");
 
 let playerState = {
   birthdate: null,
@@ -7,50 +7,52 @@ let playerState = {
   element: null,
   species: null,
   role: null,
+  wood: 0,
+  crystal: 0,
 };
 
 function $(id) {
   return document.getElementById(id);
 }
 
-// Screen toggles
+// ----- Screen toggles -----
 function showTitle() {
   const title = $("title-screen");
   const charScreen = $("character-screen");
-  const game = $("game");
+  const field = $("field-screen");
 
   if (title) title.classList.remove("hidden");
   if (charScreen) charScreen.classList.add("hidden");
-  if (game) game.classList.add("hidden");
+  if (field) field.classList.add("hidden");
 }
 
 function showCharacter() {
   const title = $("title-screen");
   const charScreen = $("character-screen");
-  const game = $("game");
+  const field = $("field-screen");
 
   if (title) title.classList.add("hidden");
   if (charScreen) {
     charScreen.classList.remove("hidden");
     charScreen.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  if (game) game.classList.add("hidden");
+  if (field) field.classList.add("hidden");
 }
 
-function showGame() {
+function showField() {
   const title = $("title-screen");
   const charScreen = $("character-screen");
-  const game = $("game");
+  const field = $("field-screen");
 
   if (title) title.classList.add("hidden");
   if (charScreen) charScreen.classList.add("hidden");
-  if (game) {
-    game.classList.remove("hidden");
-    game.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (field) {
+    field.classList.remove("hidden");
+    field.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
-// Zodiac helpers
+// ----- Zodiac helpers -----
 function getZodiacSign(month, day) {
   if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
   if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus";
@@ -90,15 +92,16 @@ function getElementForSign(sign) {
   }
 }
 
-// Called when you click "Bind to Your Realm"
+// ----- Bind Petborn (called by button) -----
 function bindPetborn() {
   const birthInput = $("birthdate");
   const previewIcon = $("preview-icon");
   const previewText = $("preview-text");
   const playerSummary = $("player-summary");
-  const tokenEmoji = $("pb-token"); // not used now but left for future
-  const gamePreviewIcon = $("game-preview-icon");
-  const gamePreviewText = $("game-preview-text");
+  const gamePet = $("field-petborn");
+  const hudElement = $("hud-element");
+  const hudRole = $("hud-role");
+  const hudResources = $("hud-resources");
 
   if (!birthInput || !previewText) return;
 
@@ -139,6 +142,7 @@ function bindPetborn() {
   playerState.role = role;
 
   const speciesEmoji = species === "cat" ? "🐱" : "🐶";
+
   if (previewIcon) previewIcon.textContent = speciesEmoji;
 
   const coreText =
@@ -151,15 +155,7 @@ function bindPetborn() {
     (species === "cat" ? "Petborn Cat" : "Petborn Dog");
 
   previewText.textContent =
-    coreText + ". This is your starting identity in the Realms.";
-
-  // Mirror into Realms panel
-  if (gamePreviewIcon) gamePreviewIcon.textContent = speciesEmoji;
-  if (gamePreviewText) {
-    gamePreviewText.textContent =
-      coreText +
-      ". Later this card will show stats, health, and equipped powers.";
-  }
+    coreText + ". This is your starting identity on the field.";
 
   if (playerSummary) {
     playerSummary.textContent =
@@ -171,87 +167,53 @@ function bindPetborn() {
       sign +
       " · Element: " +
       element +
-      ". This will later influence your encounters in each Realm.";
+      ". This will later influence encounters and resource bonuses.";
   }
 
-  showGame();
+  if (gamePet) {
+    gamePet.textContent = speciesEmoji;
+  }
+
+  if (hudElement) hudElement.textContent = "Element: " + element;
+  if (hudRole) hudRole.textContent = "Role: " + role;
+  if (hudResources) {
+    hudResources.textContent =
+      "Wood: " + playerState.wood + " · Crystal: " + playerState.crystal;
+  }
+
+  // Drop straight into the field
+  showField();
 }
 
-// Realm selection
-function enterRealm(realm) {
-  const log = $("realm-log");
-  if (!log) return;
+// ----- Resource collection -----
+function collectResource(button) {
+  if (!button || !button.dataset) return;
 
-  if (!playerState.sign || !playerState.element || !playerState.role) {
-    log.textContent =
-      "You haven’t bound a Petborn yet. Go back to Create and bind your birthdate, form, and role first.";
-    return;
+  const type = button.dataset.type; // "wood" or "crystal"
+
+  if (type === "wood") {
+    playerState.wood += 1;
+  } else if (type === "crystal") {
+    playerState.crystal += 1;
   }
 
-  const { element, role, species, sign } = playerState;
-
-  let advantageText = "";
-  if (
-    (realm === "Air" && element === "Air") ||
-    (realm === "Earth" && element === "Earth") ||
-    (realm === "Fire" && element === "Fire") ||
-    (realm === "Water" && element === "Water")
-  ) {
-    advantageText =
-      "This is your home element. You gain an advantage on most encounters here.";
-  } else {
-    advantageText =
-      "This Realm doesn’t match your element, so conditions are trickier but rewards can be higher.";
+  const hudResources = $("hud-resources");
+  if (hudResources) {
+    hudResources.textContent =
+      "Wood: " + playerState.wood + " · Crystal: " + playerState.crystal;
   }
 
-  let roleFlavor = "";
-  switch (role) {
-    case "Wizard":
-      roleFlavor =
-        "As a Wizard, you’re more likely to trigger spell challenges, puzzles, and magical duels.";
-      break;
-    case "Guardian":
-      roleFlavor =
-        "As a Guardian, expect defense missions, shielding allies, and holding lines against waves of enemies.";
-      break;
-    case "Trickster":
-      roleFlavor =
-        "As a Trickster, you’ll see stealth paths, pranks, and high-risk/high-reward gambits.";
-      break;
-    default:
-      roleFlavor = "Your role shapes the type of encounters you’ll see.";
-  }
-
-  const speciesText =
-    species === "cat"
-      ? "Your feline instincts help with agility and awareness."
-      : "Your canine instincts help with loyalty and pack-based bonuses.";
-
-  log.innerHTML =
-    "<strong>" +
-    realm +
-    " Realm</strong><br>" +
-    "Sign: " +
-    sign +
-    " · Element: " +
-    element +
-    " · Role: " +
-    role +
-    "<br>" +
-    advantageText +
-    "<br>" +
-    roleFlavor +
-    "<br>" +
-    speciesText +
-    "<br><br>" +
-    "In a later build, clicking this Realm would open a full scene with map tiles, NPCs, and battles.";
+  // Visually remove the node
+  button.style.transform = "scale(0.1)";
+  button.style.opacity = "0";
+  button.disabled = true;
 }
 
-// Initialize
+// ----- Initial setup -----
 (function initialSetup() {
   const tagline = document.querySelector(".tagline");
   if (tagline) {
-    tagline.textContent += " · Realms prototype";
+    tagline.textContent += " · Field prototype";
   }
   showTitle();
 })();
