@@ -1,254 +1,200 @@
-console.log('Petborn script.js loaded (short version).');
+console.log("Petborn Realms script.js loaded");
 
-// ----- SIMPLE STATE -----
-const petbornState = {
+// ----- STATE -----
+const pet = {
   name: null,
-  birthdate: null,
+  birth: null,
   zodiac: null,
   element: null,
-  form: 'cat',
-  pattern: 'spots',
+  form: "cat",
+  pattern: "spots",
   role: null,
-  stats: {
-    power: null,
-    defense: null,
-    magic: null,
-    speed: null,
-    luck: null,
-    focus: null,
-  },
-  currentTile: 1,
+  stats: {},
+  tile: 1
 };
 
 const TOTAL_TILES = 40;
 
 // ----- SCREEN ELEMENTS -----
-const bindingScreen = document.getElementById('binding-screen');
-const boundScreen   = document.getElementById('bound-screen');
-const buildScreen   = document.getElementById('build-screen');
-const boardScreen   = document.getElementById('board-screen');
+const scrBind  = document.getElementById("binding-screen");
+const scrBound = document.getElementById("bound-screen");
+const scrBuild = document.getElementById("build-screen");
+const scrBoard = document.getElementById("board-screen");
 
-// ----- BINDING ELEMENTS -----
-const petNameInput   = document.getElementById('pet-name-input');
-const birthdateInput = document.getElementById('birthdate-input');
-const formSelect     = document.getElementById('form-select');
-const patternSelect  = document.getElementById('pattern-select');
-const bindPetBtn     = document.getElementById('bind-pet-btn');
+// ----- INPUTS -----
+const inpName   = document.getElementById("pet-name-input");
+const inpBirth  = document.getElementById("birthdate-input");
+const selForm   = document.getElementById("form-select");
+const selPat    = document.getElementById("pattern-select");
+const btnBind   = document.getElementById("bind-pet-btn");
 
-const boundMessage = document.getElementById('bound-message');
-const cardName     = document.getElementById('card-name');
-const cardLine1    = document.getElementById('card-line-1');
-const cardLine2    = document.getElementById('card-line-2');
-const cardLine3    = document.getElementById('card-line-3');
-const cardLine4    = document.getElementById('card-line-4');
+const msgBound  = document.getElementById("bound-message");
+const cName     = document.getElementById("card-name");
+const c1        = document.getElementById("card-line-1");
+const c2        = document.getElementById("card-line-2");
+const c3        = document.getElementById("card-line-3");
+const c4        = document.getElementById("card-line-4");
 
-const startGameBtn = document.getElementById('start-game');
+const btnStart  = document.getElementById("start-game");
 
-// ----- CLASS / STATS ELEMENTS -----
-const roleSelect     = document.getElementById('role-select');
-const rollStatsBtn   = document.getElementById('roll-stats-btn');
-const enterBoardBtn  = document.getElementById('enter-board-btn');
+// ----- CLASS/STATS -----
+const selRole   = document.getElementById("role-select");
+const btnRoll   = document.getElementById("roll-stats-btn");
+const btnBoard  = document.getElementById("enter-board-btn");
 
-const statPower   = document.getElementById('stat-power');
-const statDefense = document.getElementById('stat-defense');
-const statMagic   = document.getElementById('stat-magic');
-const statSpeed   = document.getElementById('stat-speed');
-const statLuck    = document.getElementById('stat-luck');
-const statFocus   = document.getElementById('stat-focus');
+const statP = document.getElementById("stat-power");
+const statD = document.getElementById("stat-defense");
+const statM = document.getElementById("stat-magic");
+const statS = document.getElementById("stat-speed");
+const statL = document.getElementById("stat-luck");
+const statF = document.getElementById("stat-focus");
 
-// ----- BOARD ELEMENTS -----
-const currentTileLabel = document.getElementById('current-tile-label');
-const moveOneBtn       = document.getElementById('move-one-btn');
-const tileEffectText   = document.getElementById('tile-effect-text');
-const boardContainer   = document.getElementById('board-container');
+// ----- BOARD -----
+const lblTile = document.getElementById("current-tile-label");
+const btnMove = document.getElementById("move-one-btn");
+const lblDesc = document.getElementById("tile-effect-text");
+const board   = document.getElementById("board-container");
 
-// ----- HELPERS -----
-function showScreen(which) {
-  if (bindingScreen) bindingScreen.hidden = (which !== 'binding');
-  if (boundScreen)   boundScreen.hidden   = (which !== 'bound');
-  if (buildScreen)   buildScreen.hidden   = (which !== 'build');
-  if (boardScreen)   boardScreen.hidden   = (which !== 'board');
-}
-
-function getZodiacSign(month, day) {
-  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'Aquarius';
-  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return 'Pisces';
-  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'Aries';
-  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'Taurus';
-  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'Gemini';
-  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'Cancer';
-  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'Leo';
-  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'Virgo';
-  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'Libra';
-  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'Scorpio';
-  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius';
-  return 'Capricorn';
-}
-
-function elementFromZodiac(sign) {
-  switch (sign) {
-    case 'Aries':
-    case 'Leo':
-    case 'Sagittarius':
-      return 'Fire';
-    case 'Taurus':
-    case 'Virgo':
-    case 'Capricorn':
-      return 'Earth';
-    case 'Gemini':
-    case 'Libra':
-    case 'Aquarius':
-      return 'Air';
-    case 'Cancer':
-    case 'Scorpio':
-    case 'Pisces':
-      return 'Water';
-    default:
-      return 'Spirit';
-  }
+// ----- HELPER FUNCTIONS -----
+function show(which) {
+  scrBind.hidden  = which !== "bind";
+  scrBound.hidden = which !== "bound";
+  scrBuild.hidden = which !== "build";
+  scrBoard.hidden = which !== "board";
 }
 
 function rollD20() {
   return Math.floor(Math.random() * 20) + 1;
 }
 
-// Simple “tile info” for now – just a label
-function getTileLabel(n) {
-  return 'Tile ' + n;
+function zodiac(month, day) {
+  if ((month==1 && day>=20)||(month==2 && day<=18)) return "Aquarius";
+  if ((month==2 && day>=19)||(month==3 && day<=20)) return "Pisces";
+  if ((month==3 && day>=21)||(month==4 && day<=19)) return "Aries";
+  if ((month==4 && day>=20)||(month==5 && day<=20)) return "Taurus";
+  if ((month==5 && day>=21)||(month==6 && day<=20)) return "Gemini";
+  if ((month==6 && day>=21)||(month==7 && day<=22)) return "Cancer";
+  if ((month==7 && day>=23)||(month==8 && day<=22)) return "Leo";
+  if ((month==8 && day>=23)||(month==9 && day<=22)) return "Virgo";
+  if ((month==9 && day>=23)||(month==10&& day<=22)) return "Libra";
+  if ((month==10&& day>=23)||(month==11&& day<=21)) return "Scorpio";
+  if ((month==11&& day>=22)||(month==12&& day<=21)) return "Sagittarius";
+  return "Capricorn";
 }
 
-// Build a simple 40-tile board (just numbered)
-function buildBoardTiles() {
-  if (!boardContainer) return;
-  boardContainer.innerHTML = '';
-  for (let i = 1; i <= TOTAL_TILES; i++) {
-    const div = document.createElement('div');
-    div.className = 'board-tile';
-    div.setAttribute('data-tile', String(i));
-    div.textContent = getTileLabel(i);
-    boardContainer.appendChild(div);
+function element(sign) {
+  switch (sign) {
+    case "Aries": case "Leo": case "Sagittarius": return "Fire";
+    case "Taurus": case "Virgo": case "Capricorn": return "Earth";
+    case "Gemini": case "Libra": case "Aquarius": return "Air";
+    case "Cancer": case "Scorpio": case "Pisces": return "Water";
+    default: return "Spirit";
   }
 }
 
-function updateBoardDisplay() {
-  if (!currentTileLabel || !tileEffectText || !boardContainer) return;
-  currentTileLabel.textContent = petbornState.currentTile;
-  tileEffectText.textContent = 'You are on ' + getTileLabel(petbornState.currentTile) + '.';
+function tileDesc(n) {
+  return "You are on Tile " + n + ".";
+}
 
-  const tiles = boardContainer.querySelectorAll('.board-tile');
-  tiles.forEach(tile => {
-    const n = Number(tile.getAttribute('data-tile'));
-    tile.classList.toggle('active-tile', n === petbornState.currentTile);
+// ----- BOARD BUILDER -----
+function buildBoard() {
+  board.innerHTML = "";
+  for (let i = 1; i <= TOTAL_TILES; i++) {
+    const d = document.createElement("div");
+    d.className = "board-tile";
+    d.dataset.tile = i;
+    d.textContent = "Tile " + i;
+    board.appendChild(d);
+  }
+}
+
+// ----- UPDATE TILE -----
+function updateTile() {
+  lblTile.textContent = pet.tile;
+  lblDesc.textContent = tileDesc(pet.tile);
+
+  document.querySelectorAll(".board-tile").forEach(t => {
+    t.classList.toggle("active-tile", Number(t.dataset.tile) === pet.tile);
   });
 }
 
-// ----- EVENT HANDLERS -----
-// Bind pet
-if (bindPetBtn) {
-  bindPetBtn.addEventListener('click', () => {
-    const name = petNameInput.value.trim();
-    const birthdate = birthdateInput.value;
+// ----- EVENTS -----
+// BIND PET
+btnBind.addEventListener("click", () => {
+  if (!inpBirth.value) {
+    alert("Pick a birth date first.");
+    return;
+  }
 
-    if (!birthdate) {
-      alert('Pick a birth date first.');
-      return;
-    }
+  const [y, m, d] = inpBirth.value.split("-");
+  pet.name    = inpName.value.trim() || "Unnamed";
+  pet.birth   = inpBirth.value;
+  pet.form    = selForm.value;
+  pet.pattern = selPat.value;
+  pet.zodiac  = zodiac(Number(m), Number(d));
+  pet.element = element(pet.zodiac);
 
-    const parts = birthdate.split('-');
-    const month = Number(parts[1]);
-    const day   = Number(parts[2]);
+  msgBound.textContent =
+    `${pet.name} the ${pet.element} ${pet.form.toUpperCase()} (${pet.zodiac}) is bound.`;
 
-    const zodiac  = getZodiacSign(month, day);
-    const element = elementFromZodiac(zodiac);
+  cName.textContent = "Name: " + pet.name;
+  c1.textContent = `Form: ${pet.form.toUpperCase()} · Element: ${pet.element} · Sign: ${pet.zodiac}`;
+  c2.textContent = "Birthdate: " + pet.birth;
+  c3.textContent = "Pattern: " + pet.pattern;
+  c4.textContent = "Class: not chosen yet";
 
-    petbornState.name      = name || 'Unnamed';
-    petbornState.birthdate = birthdate;
-    petbornState.form      = formSelect.value || 'cat';
-    petbornState.pattern   = patternSelect.value || 'spots';
-    petbornState.zodiac    = zodiac;
-    petbornState.element   = element;
+  show("bound");
+});
 
-    if (boundMessage) {
-      boundMessage.textContent =
-        petbornState.name + ' the ' +
-        petbornState.element + ' ' +
-        petbornState.form.toUpperCase() +
-        ' (' + petbornState.zodiac + ') is bound.';
-    }
+// GO TO CLASS SCREEN
+btnStart.addEventListener("click", () => show("build"));
 
-    if (cardName)  cardName.textContent  = 'Name: ' + petbornState.name;
-    if (cardLine1) cardLine1.textContent = 'Form: ' + petbornState.form.toUpperCase() +
-                                           ' · Element: ' + petbornState.element +
-                                           ' · Sign: ' + petbornState.zodiac;
-    if (cardLine2) cardLine2.textContent = 'Birthdate: ' + petbornState.birthdate;
-    if (cardLine3) cardLine3.textContent = 'Pattern: ' + petbornState.pattern;
-    if (cardLine4) cardLine4.textContent = 'Class: not chosen yet';
+// ROLL STATS
+btnRoll.addEventListener("click", () => {
+  if (!selRole.value) {
+    alert("Choose a class first.");
+    return;
+  }
 
-    showScreen('bound');
-  });
-}
+  pet.role = selRole.value;
 
-// Go to class/stats
-if (startGameBtn) {
-  startGameBtn.addEventListener('click', () => {
-    showScreen('build');
-  });
-}
+  pet.stats = {
+    power:   rollD20(),
+    defense: rollD20(),
+    magic:   rollD20(),
+    speed:   rollD20(),
+    luck:    rollD20(),
+    focus:   rollD20(),
+  };
 
-// Roll stats
-if (rollStatsBtn) {
-  rollStatsBtn.addEventListener('click', () => {
-    const role = roleSelect.value;
-    if (!role) {
-      alert('Choose a class first.');
-      return;
-    }
+  statP.textContent = pet.stats.power;
+  statD.textContent = pet.stats.defense;
+  statM.textContent = pet.stats.magic;
+  statS.textContent = pet.stats.speed;
+  statL.textContent = pet.stats.luck;
+  statF.textContent = pet.stats.focus;
 
-    petbornState.role          = role;
-    petbornState.stats.power   = rollD20();
-    petbornState.stats.defense = rollD20();
-    petbornState.stats.magic   = rollD20();
-    petbornState.stats.speed   = rollD20();
-    petbornState.stats.luck    = rollD20();
-    petbornState.stats.focus   = rollD20();
+  c4.textContent = "Class: " + pet.role;
 
-    statPower.textContent   = petbornState.stats.power;
-    statDefense.textContent = petbornState.stats.defense;
-    statMagic.textContent   = petbornState.stats.magic;
-    statSpeed.textContent   = petbornState.stats.speed;
-    statLuck.textContent    = petbornState.stats.luck;
-    statFocus.textContent   = petbornState.stats.focus;
+  btnBoard.disabled = false;
+});
 
-    if (cardLine4) {
-      cardLine4.textContent = 'Class: ' + role;
-    }
+// ENTER BOARD
+btnBoard.addEventListener("click", () => {
+  pet.tile = 1;
+  buildBoard();
+  updateTile();
+  show("board");
+});
 
-    enterBoardBtn.disabled = false;
-  });
-}
-
-// Enter board
-if (enterBoardBtn) {
-  enterBoardBtn.addEventListener('click', () => {
-    petbornState.currentTile = 1;
-    buildBoardTiles();
-    updateBoardDisplay();
-    showScreen('board');
-  });
-}
-
-// Move one space
-if (moveOneBtn) {
-  moveOneBtn.addEventListener('click', () => {
-    petbornState.currentTile += 1;
-    if (petbornState.currentTile > TOTAL_TILES) {
-      petbornState.currentTile = 1;
-    }
-    updateBoardDisplay();
-  });
-}
+// MOVE 1 SPACE
+btnMove.addEventListener("click", () => {
+  pet.tile++;
+  if (pet.tile > TOTAL_TILES) pet.tile = 1;
+  updateTile();
+});
 
 // ----- INIT -----
-showScreen('binding');
-buildBoardTiles();
-updateBoardDisplay();
+show("bind");
+buildBoard();
+updateTile();
