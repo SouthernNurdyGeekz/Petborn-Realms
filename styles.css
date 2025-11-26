@@ -4,26 +4,24 @@
   padding: 0;
 }
 
+/* Whole screen = grassy world */
 body {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  background: radial-gradient(circle at top, #1c1030 0%, #03030a 60%, #000000 100%);
+  background: linear-gradient(180deg, #2b8042 0%, #14512a 40%, #062018 100%);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #9dfcff; /* no pure white text */
 }
 
 #game-wrapper {
-  width: 900px;
-  max-width: 100vw;
+  width: 100vw;
+  max-width: 1000px;
   padding: 10px 14px 14px;
-  border-radius: 16px;
-  background: linear-gradient(145deg, #050510, #161628);
-  border: 1px solid rgba(147, 255, 238, 0.4);
-  box-shadow:
-    0 0 16px rgba(0, 0, 0, 0.9),
-    0 0 20px rgba(111, 255, 215, 0.25);
+  border-radius: 0;
+  background: transparent;
+  border: none;
 }
 
 /* HUD */
@@ -33,7 +31,8 @@ body {
   justify-content: space-between;
   align-items: baseline;
   padding-bottom: 6px;
-  border-bottom: 1px solid rgba(157, 252, 255, 0.18);
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(11, 40, 23, 0.6);
 }
 
 .game-title {
@@ -61,16 +60,60 @@ body {
   color: #9effbc;
 }
 
+/* Customizer panel */
+
+#customizer {
+  margin: 6px 0 4px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(5, 35, 18, 0.8);
+  border: 1px solid rgba(22, 96, 58, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.customizer-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.customizer-label {
+  color: #ffdb9a;
+}
+
+#cat-style {
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(145, 255, 224, 0.7);
+  background: #051d10;
+  color: #b6feff;
+  font-size: 0.88rem;
+}
+
+#randomize-cat {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 174, 255, 0.9);
+  background: radial-gradient(circle at 0 0, #3c1454 0%, #7d2ca5 45%, #31114a 100%);
+  color: #f5dfff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
 /* Game area */
 
 #game-area {
   position: relative;
-  margin-top: 8px;
+  margin-top: 4px;
   width: 100%;
-  height: 480px; /* Fixed so our math is sane */
+  height: 520px; /* fixed so math stays sane */
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(185, 255, 245, 0.3);
+  border: 1px solid rgba(10, 40, 25, 0.7);
   background: linear-gradient(180deg, #2b8042 0%, #14512a 40%, #062018 100%);
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.9);
 }
@@ -92,9 +135,9 @@ body {
   position: absolute;
   width: 48px;
   height: 40px;
-  /* we'll set left/top in JS */
   pointer-events: none;
   transform-origin: center center;
+  outline: 1px solid rgba(0, 255, 234, 0.3); /* debug hitbox so we see it */
 }
 
 .cat-body {
@@ -103,7 +146,8 @@ body {
   height: 100%;
 }
 
-/* Body oval */
+/* Default body & head (neon-ish) – overridden by style skins */
+
 .cat-body::before {
   content: "";
   position: absolute;
@@ -118,7 +162,6 @@ body {
     0 6px 8px rgba(0, 0, 0, 0.6);
 }
 
-/* Head */
 .cat-head {
   position: absolute;
   top: 0;
@@ -133,6 +176,7 @@ body {
 }
 
 /* Ears */
+
 .cat-ear {
   position: absolute;
   top: -8px;
@@ -156,6 +200,7 @@ body {
 }
 
 /* Eyes */
+
 .cat-eye {
   position: absolute;
   top: 4px;
@@ -208,7 +253,7 @@ body {
   box-shadow: 0 0 4px rgba(255, 180, 255, 0.7);
 }
 
-/* Idle / run tail + leg animations */
+/* Idle / run / jump animations */
 
 #cat.idle .cat-tail {
   animation: tail-idle 1s ease-in-out infinite;
@@ -222,8 +267,9 @@ body {
   animation: leg-walk 0.24s ease-in-out infinite alternate;
 }
 
-#cat.chopping {
-  animation: cat-chop 0.15s ease-out;
+/* Jump: only the body hops */
+#cat.jumping .cat-body {
+  animation: cat-jump 0.26s ease-out;
 }
 
 @keyframes tail-idle {
@@ -243,15 +289,96 @@ body {
   to   { transform: translateY(2px); }
 }
 
-@keyframes cat-chop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.08) translateY(-2px); }
-  100% { transform: scale(1); }
+/* Bigger, obvious jump arc */
+@keyframes cat-jump {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-18px); }
+  60%  { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
 }
 
-/* Debug outline so you KNOW that cat exists */
-#cat {
-  outline: 1px solid rgba(0, 255, 234, 0.3);
+/* === STYLE SKINS === */
+
+/* Carly: mostly white with dark accents */
+#cat[data-style="carly"] .cat-body::before {
+  background:
+    radial-gradient(circle at 15% 15%, #ffffff 0%, #f9f9ff 40%, #d3d3e6 70%, #8d8d99 100%);
+}
+
+#cat[data-style="carly"] .cat-head {
+  background:
+    radial-gradient(circle at 20% 0%, #ffffff 0%, #f5f5ff 55%, #c7c7d8 95%);
+}
+
+#cat[data-style="carly"] .cat-ear {
+  background: linear-gradient(145deg, #f6b0ff, #985aaf);
+}
+
+#cat[data-style="carly"]::before {
+  /* fake patch (optional) – but we already have outline, so skip shape complexity */
+}
+
+/* Belle: dark midnight cat */
+#cat[data-style="belle"] .cat-body::before {
+  background:
+    radial-gradient(circle at 20% 10%, #3b3454 0%, #1b1634 35%, #05030c 70%, #000000 100%);
+}
+
+#cat[data-style="belle"] .cat-head {
+  background:
+    radial-gradient(circle at 30% 0%, #463b66 0%, #241c3e 40%, #05030d 90%);
+}
+
+#cat[data-style="belle"] .cat-ear {
+  background: linear-gradient(145deg, #7c5dff, #281a66);
+}
+
+#cat[data-style="belle"] .cat-eye {
+  background: radial-gradient(circle at 50% 0%, #d5fffd 0%, #8bffe5 35%, #0a3a2a 100%);
+}
+
+/* Tabby: golden + subtle stripes */
+
+#cat[data-style="tabby"] .cat-body::before {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      #f8d48f 0px,
+      #f8d48f 6px,
+      #e3b25b 6px,
+      #e3b25b 10px
+    );
+  box-shadow:
+    0 0 5px rgba(255, 223, 158, 0.9),
+    0 6px 8px rgba(0, 0, 0, 0.6);
+}
+
+#cat[data-style="tabby"] .cat-head {
+  background:
+    linear-gradient(180deg, #ffe2aa 0%, #f4c46b 60%, #d89234 100%);
+}
+
+#cat[data-style="tabby"] .cat-ear {
+  background: linear-gradient(145deg, #ffcf9b, #c47523);
+}
+
+/* Neon: full rave kitty */
+
+#cat[data-style="neon"] .cat-body::before {
+  background:
+    radial-gradient(circle at 10% 0%, #ffffff 0%, #ffd6ff 22%, #ff54ff 45%, #6d2bff 72%, #13122c 100%);
+  box-shadow:
+    0 0 8px rgba(255, 142, 255, 0.95),
+    0 6px 10px rgba(0, 0, 0, 0.7);
+}
+
+#cat[data-style="neon"] .cat-head {
+  background:
+    radial-gradient(circle at 20% 0%, #e8ffc7 0%, #c9ff6f 25%, #30f7ff 55%, #5227ff 100%);
+}
+
+#cat[data-style="neon"] .cat-ear {
+  background: linear-gradient(145deg, #fffb9b, #ff86ff);
 }
 
 /* Resources */
