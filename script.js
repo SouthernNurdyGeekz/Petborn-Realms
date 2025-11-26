@@ -1,19 +1,18 @@
 // Simple debug ping so we know script loaded
 console.log("Petborn Realms script loaded");
 
-// Global-ish state
 let playerState = {
   birthdate: null,
   sign: null,
   element: null,
   species: null,
+  role: null,
 };
 
 let boardTiles = [];
 let currentIndex = 0;
 let isMoving = false;
 
-// Helper: grab elements safely
 function $(id) {
   return document.getElementById(id);
 }
@@ -107,10 +106,11 @@ function bindPetborn() {
 
   const birthVal = birthInput.value;
   const speciesInput = document.querySelector('input[name="species"]:checked');
+  const roleInput = document.querySelector('input[name="role"]:checked');
 
-  if (!birthVal || !speciesInput) {
+  if (!birthVal || !speciesInput || !roleInput) {
     previewText.textContent =
-      "You must choose a birthdate and a form (cat or dog) before binding.";
+      "You must choose a birthdate, a form (cat/dog), and a role before binding.";
     return;
   }
 
@@ -132,11 +132,13 @@ function bindPetborn() {
   const sign = getZodiacSign(month, day);
   const element = getElementForSign(sign);
   const species = speciesInput.value; // "cat" or "dog"
+  const role = roleInput.value;       // "Wizard", "Guardian", "Trickster"
 
   playerState.birthdate = birthVal;
   playerState.sign = sign;
   playerState.element = element;
   playerState.species = species;
+  playerState.role = role;
 
   const speciesEmoji = species === "cat" ? "🐱" : "🐶";
   if (previewIcon) previewIcon.textContent = speciesEmoji;
@@ -146,6 +148,8 @@ function bindPetborn() {
     " (" +
     element +
     ") · " +
+    role +
+    " · " +
     (species === "cat" ? "Petborn Cat" : "Petborn Dog") +
     ". This is your starting identity on the board.";
 
@@ -157,6 +161,8 @@ function bindPetborn() {
     playerSummary.textContent =
       "Bound Petborn: " +
       (species === "cat" ? "Cat" : "Dog") +
+      " · Role: " +
+      role +
       " · Sign: " +
       sign +
       " · Element: " +
@@ -164,7 +170,6 @@ function bindPetborn() {
       ". This will later influence your cards, battles, and growth.";
   }
 
-  // Switch to game screen
   showGame();
 }
 
@@ -234,7 +239,6 @@ function rollDie() {
   return Math.floor(Math.random() * 6) + 1;
 }
 
-// Called by the Roll button
 function rollOnBoard() {
   const rollButton = $("roll-button");
   const rollResult = $("roll-result");
@@ -267,9 +271,8 @@ function rollOnBoard() {
   }, 260);
 }
 
-// Initialize once the DOM is ready enough (script is at the bottom)
+// Initialize once (script is at the bottom)
 (function initialSetup() {
-  // Just to prove script ran
   const tagline = document.querySelector(".tagline");
   if (tagline) {
     tagline.textContent += " · Prototype wired";
