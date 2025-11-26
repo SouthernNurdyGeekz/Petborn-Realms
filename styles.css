@@ -1,1 +1,161 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #391a6f 0%, #0c0418 55%, #050208 100%);
+  color: #e08cff; /* neon lavender-pink */
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+h1 { color: #ff5af1; }
+h2 { color: #70ffea; }
+h3 { color: #ffd76a; }
+
+p {
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+  color: #c2a6ff;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(10, 3, 30, 0.96), rgba(40, 8, 70, 0.96));
+  border-bottom: 1px solid rgba(192, 96, 255, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.logo-title { max-width: 60%; }
+.tagline { font-size: 0.8rem; color: #8efcff; }
+
+.main-nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.main-nav a {
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: #ffb3ff;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 179, 255, 0.4);
+  background: radial-gradient(circle, rgba(75, 0, 130, 0.8), rgba(20, 2, 50, 0.9));
+  transition: 0.15s ease;
+}
+
+.main-nav a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(255, 179, 255, 0.6);
+  border-color: rgba(255, 230, 150, 0.7);
+}
+
+.hero-section {
+  padding: 2.5rem 1.25rem 1.5rem;
+  background: radial-gradient(circle at top left, rgba(255, 90, 241, 0.18), transparent 55%),
+              radial-gradient(circle at top right, rgba(112, 255, 234, 0.14), transparent 60%);
+}
+
+.hero-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.content-section {
+  padding: 1.75rem 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.realm-detail {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(112, 255, 234, 0.4);
+  background: radial-gradient(circle at left, rgba(5, 255, 222, 0.1), rgba(10, 3, 40, 0.9));
+}
+
+.realm-grid,
+.character-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.1rem;
+}
+
+.realm-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(192, 96, 255, 0.5);
+  background: radial-gradient(circle at top, rgba(40, 0, 80, 0.95), rgba(7, 1, 20, 0.96));
+  box-shadow: 0 0 12px rgba(192, 96, 255, 0.3);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.realm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 180, 255, 0.6);
+  border-color: rgba(112, 255, 234, 0.8);
+}
+
+.realm-card.active {
+  border-color: #70ffea;
+  box-shadow: 0 0 20px rgba(112, 255, 234, 0.8);
+}
+
+.character-card {
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 215, 106, 0.5);
+  background: radial-gradient(circle at top, rgba(80, 40, 0, 0.9), rgba(8, 3, 0, 0.96));
+  box-shadow: 0 0 12px rgba(255, 215, 106, 0.4);
+}
+
+.site-footer {
+  padding: 0.9rem 1.25rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #9fe6ff;
+  border-top: 1px solid rgba(112, 255, 234, 0.4);
+  background: linear-gradient(90deg, rgba(5, 2, 12, 0.98), rgba(15, 5, 30, 0.98));
+}
+
+@media (min-width: 640px) {
+  .realm-grid,
+  .character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .realm-grid,
+  .character-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
 
