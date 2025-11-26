@@ -1,134 +1,99 @@
-<!-- Binding screen -->
-<section id="binding-screen" class="screen">
-  <h2>Bind Your Petborn</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Petborn Realms</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-  <label>Pet Name:
-    <input type="text" id="pet-name-input">
-  </label>
+<body>
 
-  <label>Birth Date:
-    <input type="date" id="birthdate-input">
-  </label>
+  <!-- BINDING SCREEN -->
+  <section id="binding-screen">
+    <h2>Bind Your Petborn</h2>
 
-  <label>Form:
+    <label>Pet Name:</label>
+    <input id="pet-name-input" type="text" placeholder="Your pet’s name">
+
+    <label>Birth Date:</label>
+    <input id="birthdate-input" type="date">
+
+    <label>Form:</label>
     <select id="form-select">
       <option value="cat">Cat</option>
       <option value="dog">Dog</option>
-      <option value="dragon">Dragon</option>
     </select>
-  </label>
 
-  <label>Pattern:
+    <label>Pattern:</label>
     <select id="pattern-select">
       <option value="spots">Spots</option>
       <option value="stripes">Stripes</option>
-      <option value="solid">Solid</option>
+      <option value="solid">Solid Color</option>
     </select>
-  </label>
 
-  <button id="bind-pet-btn">Bind to Realm</button>
-</section>
+    <button id="bind-pet-btn">Bind to Realm</button>
+  </section>
 
-<!-- Bound summary -->
-<section id="bound-screen" class="screen" hidden>
-  <h2>Petborn Bound</h2>
+  <!-- BOUND SCREEN -->
+  <section id="bound-screen" hidden>
+    <h2>Petborn Bound!</h2>
+    <p id="bound-message"></p>
 
-  <p id="bound-message"></p>
+    <div id="bound-card">
+      <p id="card-name"></p>
+      <p id="card-line-1"></p>
+      <p id="card-line-2"></p>
+      <p id="card-line-3"></p>
+      <p id="card-line-4"></p>
+    </div>
 
-  <div class="petborn-card">
-    <p id="card-name"></p>
-    <p id="card-line-1"></p>
-    <p id="card-line-2"></p>
-    <p id="card-line-3"></p>
-    <p id="card-line-4"></p>
-  </div>
+    <button id="start-game">Continue to Class Selection</button>
+  </section>
 
-  <button id="start-game">Choose Class & Roll Stats</button>
-</section>
+  <!-- CLASS SELECTION / STATS -->
+  <section id="build-screen" hidden>
+    <h2>Choose Your Class</h2>
 
-<!-- Class/stats screen -->
-<section id="build-screen" class="screen" hidden>
-  <h2>Class & Stats</h2>
-
-  <label>Class:
+    <label>Your Role:</label>
     <select id="role-select">
-      <option value="">-- Select --</option>
+      <option value="">-- Choose --</option>
       <option value="Ranger">Ranger</option>
       <option value="Wizard">Wizard</option>
-      <option value="Guardian">Guardian</option>
-      <option value="Trickster">Trickster</option>
-      <option value="Healer">Healer</option>
+      <option value="Warrior">Warrior</option>
+      <option value="Rogue">Rogue</option>
     </select>
-  </label>
 
-  <button id="roll-stats-btn">Roll d20 Stats</button>
+    <button id="roll-stats-btn">Roll Stats</button>
 
-  <ul>
-    <li>Power: <span id="stat-power">—</span></li>
-    <li>Defense: <span id="stat-defense">—</span></li>
-    <li>Magic: <span id="stat-magic">—</span></li>
-    <li>Speed: <span id="stat-speed">—</span></li>
-    <li>Luck: <span id="stat-luck">—</span></li>
-    <li>Focus: <span id="stat-focus">—</span></li>
-  </ul>
+    <div id="stats-area">
+      <p>Power:   <span id="stat-power">0</span></p>
+      <p>Defense: <span id="stat-defense">0</span></p>
+      <p>Magic:   <span id="stat-magic">0</span></p>
+      <p>Speed:   <span id="stat-speed">0</span></p>
+      <p>Luck:    <span id="stat-luck">0</span></p>
+      <p>Focus:   <span id="stat-focus">0</span></p>
+    </div>
 
-  <button id="enter-board-btn" disabled>Enter Board</button>
-</section>
+    <button id="enter-board-btn" disabled>Enter the Board</button>
+  </section>
 
-<!-- Infinity board -->
-<section id="board-screen" class="screen" hidden>
-  <h2>Infinity Board</h2>
+  <!-- BOARD SCREEN -->
+  <section id="board-screen" hidden>
+    <h2>Infinity-8 Board</h2>
 
-  <p>Current tile: <span id="current-tile-label">1 (HOME)</span></p>
+    <p>You are currently on Tile: <span id="current-tile-label">1</span></p>
 
-  <button id="move-one-btn">Move 1 Space</button>
+    <div id="board-container"></div>
 
-  <p id="tile-effect-text">
-    You are at HOME.
-  </p>
+    <p id="tile-effect-text"></p>
 
-  <div id="board-container">
-    <!-- Tiles 1–40 -->
-    <div class="board-tile" data-tile="1">1 · HOME</div>
-    <div class="board-tile" data-tile="2">2 · POWER L1</div>
-    <div class="board-tile" data-tile="3">3 · EVENT L1</div>
-    <div class="board-tile" data-tile="4">4 · CRYSTAL L1</div>
-    <div class="board-tile" data-tile="5">5 · MONSTER L1</div>
-    <div class="board-tile" data-tile="6">6 · GOLD L1</div>
-    <div class="board-tile" data-tile="7">7 · POTION L1</div>
-    <div class="board-tile" data-tile="8">8 · REST</div>
-    <div class="board-tile" data-tile="9">9 · POWER L2</div>
-    <div class="board-tile" data-tile="10">10 · EVENT L2</div>
-    <div class="board-tile" data-tile="11">11 · CRYSTAL L2</div>
-    <div class="board-tile" data-tile="12">12 · MONSTER L2</div>
-    <div class="board-tile" data-tile="13">13 · GOLD L2</div>
-    <div class="board-tile" data-tile="14">14 · POTION L2</div>
-    <div class="board-tile" data-tile="15">15 · GATE LEFT</div>
-    <div class="board-tile" data-tile="16">16 · PRE-NEXUS</div>
-    <div class="board-tile nexus-tile" data-tile="17">17 · NEXUS</div>
-    <div class="board-tile" data-tile="18">18 · POST-NEXUS</div>
-    <div class="board-tile" data-tile="19">19 · POWER L3</div>
-    <div class="board-tile" data-tile="20">20 · GOLD L3</div>
-    <div class="board-tile" data-tile="21">21 · POTION L3</div>
-    <div class="board-tile" data-tile="22">22 · EVENT L3</div>
-    <div class="board-tile" data-tile="23">23 · MONSTER L3</div>
-    <div class="board-tile" data-tile="24">24 · CRYSTAL L3</div>
-    <div class="board-tile" data-tile="25">25 · SHOP</div>
-    <div class="board-tile" data-tile="26">26 · MYSTERY</div>
-    <div class="board-tile" data-tile="27">27 · GOLD L4</div>
-    <div class="board-tile" data-tile="28">28 · POTION L4</div>
-    <div class="board-tile" data-tile="29">29 · MONSTER L4</div>
-    <div class="board-tile" data-tile="30">30 · CRYSTAL L4</div>
-    <div class="board-tile" data-tile="31">31 · EVENT L4</div>
-    <div class="board-tile" data-tile="32">32 · POWER L4</div>
-    <div class="board-tile" data-tile="33">33 · FATE</div>
-    <div class="board-tile" data-tile="34">34 · WARP</div>
-    <div class="board-tile" data-tile="35">35 · GOLD RARE</div>
-    <div class="board-tile" data-tile="36">36 · POTION RARE</div>
-    <div class="board-tile" data-tile="37">37 · MONSTER MINI-BOSS</div>
-    <div class="board-tile" data-tile="38">38 · CRYSTAL RARE</div>
-    <div class="board-tile" data-tile="39">39 · EVENT MAJOR</div>
-    <div class="board-tile" data-tile="40">40 · GATE RIGHT</div>
-  </div>
+    <button id="move-one-btn">Move +1</button>
+  </section>
 
-</section>
+  <footer class="site-footer">
+    <p>© SouthernNurdyGeekz LLC · Petborn Realms</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
