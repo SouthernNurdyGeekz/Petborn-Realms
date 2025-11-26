@@ -1,4 +1,4 @@
-console.log("Petborn Realms script.js loaded");
+console.log("Petborn Realms script.js loaded (animated stats)");
 
 // ----- STATE -----
 const pet = {
@@ -9,7 +9,14 @@ const pet = {
   form: "cat",
   pattern: "spots",
   role: null,
-  stats: {},
+  stats: {
+    strength: 0,
+    dexterity: 0,
+    endurance: 0,
+    intelligence: 0,
+    wisdom: 0,
+    charisma: 0
+  },
   tile: 1
 };
 
@@ -42,12 +49,12 @@ const selRole   = document.getElementById("role-select");
 const btnRoll   = document.getElementById("roll-stats-btn");
 const btnBoard  = document.getElementById("enter-board-btn");
 
-const statP = document.getElementById("stat-power");
-const statD = document.getElementById("stat-defense");
-const statM = document.getElementById("stat-magic");
-const statS = document.getElementById("stat-speed");
-const statL = document.getElementById("stat-luck");
-const statF = document.getElementById("stat-focus");
+const statStr = document.getElementById("stat-strength");
+const statDex = document.getElementById("stat-dexterity");
+const statEnd = document.getElementById("stat-endurance");
+const statInt = document.getElementById("stat-intelligence");
+const statWis = document.getElementById("stat-wisdom");
+const statCha = document.getElementById("stat-charisma");
 
 // ----- BOARD -----
 const lblTile = document.getElementById("current-tile-label");
@@ -55,7 +62,7 @@ const btnMove = document.getElementById("move-one-btn");
 const lblDesc = document.getElementById("tile-effect-text");
 const board   = document.getElementById("board-container");
 
-// ----- HELPER FUNCTIONS -----
+// ----- HELPERS -----
 function show(which) {
   scrBind.hidden  = which !== "bind";
   scrBound.hidden = which !== "bound";
@@ -118,6 +125,50 @@ function updateTile() {
   });
 }
 
+// ----- ANIMATED STAT ROLLING -----
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function rollStatsAnimated() {
+  if (!selRole.value) {
+    alert("Choose a class first.");
+    return;
+  }
+
+  // lock UI during animation
+  btnRoll.disabled  = true;
+  btnBoard.disabled = true;
+
+  pet.role = selRole.value;
+  c4.textContent = "Class: " + pet.role;
+
+  const sequence = [
+    { key: "strength",     el: statStr },
+    { key: "dexterity",    el: statDex },
+    { key: "endurance",    el: statEnd },
+    { key: "intelligence", el: statInt },
+    { key: "wisdom",       el: statWis },
+    { key: "charisma",     el: statCha }
+  ];
+
+  for (const item of sequence) {
+    // simple little flicker effect: show "…" then final value
+    item.el.textContent = "…";
+    await sleep(250);
+
+    const value = rollD20();
+    pet.stats[item.key] = value;
+    item.el.textContent = value;
+
+    await sleep(220);
+  }
+
+  // enable entering the board after animation is done
+  btnBoard.disabled = false;
+  btnRoll.disabled  = false;
+}
+
 // ----- EVENTS -----
 // BIND PET
 btnBind.addEventListener("click", () => {
@@ -149,34 +200,9 @@ btnBind.addEventListener("click", () => {
 // GO TO CLASS SCREEN
 btnStart.addEventListener("click", () => show("build"));
 
-// ROLL STATS
+// ROLL STATS (animated, one-by-one)
 btnRoll.addEventListener("click", () => {
-  if (!selRole.value) {
-    alert("Choose a class first.");
-    return;
-  }
-
-  pet.role = selRole.value;
-
-  pet.stats = {
-    power:   rollD20(),
-    defense: rollD20(),
-    magic:   rollD20(),
-    speed:   rollD20(),
-    luck:    rollD20(),
-    focus:   rollD20(),
-  };
-
-  statP.textContent = pet.stats.power;
-  statD.textContent = pet.stats.defense;
-  statM.textContent = pet.stats.magic;
-  statS.textContent = pet.stats.speed;
-  statL.textContent = pet.stats.luck;
-  statF.textContent = pet.stats.focus;
-
-  c4.textContent = "Class: " + pet.role;
-
-  btnBoard.disabled = false;
+  rollStatsAnimated();
 });
 
 // ENTER BOARD
