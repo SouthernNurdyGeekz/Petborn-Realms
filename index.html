@@ -2,165 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Petborn Realms</title>
+  <title>PetBorn Realms - Cat Forager</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo-title">
-      <h1>Petborn Realms</h1>
-      <p class="tagline">A browser world where you are the pet.</p>
+  <div id="game-wrapper">
+    <header class="hud">
+      <div class="hud-left">
+        <span class="game-title">PetBorn Realms</span>
+        <span class="game-subtitle">Chibi Cat Forager</span>
+      </div>
+      <div class="hud-right">
+        <span class="label">Collected:</span>
+        <span id="score">0</span>
+      </div>
+    </header>
+
+    <div id="game-area">
+      <div id="ground"></div>
+
+      <!-- Chibi cat character -->
+      <div id="cat">
+        <div class="cat-body">
+          <div class="cat-tail"></div>
+        </div>
+      </div>
+
+      <!-- Resources will be injected here by script.js -->
+      <div id="resources"></div>
     </div>
-    <nav class="main-nav">
-      <button type="button" onclick="showTitle()">Home</button>
-      <button type="button" onclick="showCharacter()">Create</button>
-      <button type="button" onclick="showField()">Field</button>
-    </nav>
-  </header>
 
-  <main>
-    <!-- TITLE SCREEN -->
-    <section id="title-screen" class="content-section">
-      <div class="title-inner">
-        <div class="title-creatures">
-          <span class="title-pet">🐱</span>
-          <span class="title-pet">🐶</span>
-        </div>
-        <h2 class="title-heading">Welcome to Petborn Realms</h2>
-        <p class="title-text">
-          You’re not the owner. <strong>You</strong> are the creature. Your birthdate shapes
-          your element, your form shapes how you survive, and your role shapes how you play.
-        </p>
-        <button
-          id="start-game-btn"
-          class="primary-button large"
-          type="button"
-          onclick="showCharacter()"
-        >
-          Start Your Journey
-        </button>
-      </div>
-    </section>
-
-    <!-- CHARACTER CREATION SCREEN -->
-    <section id="character-screen" class="content-section hidden">
-      <h2>Create Your Petborn</h2>
-      <p>
-        Step 1: Enter your birthdate so the Realms can determine your elemental lean.<br />
-        Step 2: Choose whether you are a cat or a dog (your starting form).<br />
-        Step 3: Choose your role (wizard / guardian / trickster style).<br />
-        Then you’ll drop into a simple field where you can start collecting resources.
-      </p>
-
-      <div class="character-grid">
-        <div class="character-form">
-          <label for="birthdate" class="field-label">Birthdate</label>
-          <input type="date" id="birthdate" class="field-input" />
-
-          <fieldset class="field-group">
-            <legend class="field-label">Choose Your Form</legend>
-            <label class="choice-pill">
-              <input type="radio" name="species" value="cat" />
-              <span class="choice-visual">🐱 Cat</span>
-            </label>
-            <label class="choice-pill">
-              <input type="radio" name="species" value="dog" />
-              <span class="choice-visual">🐶 Dog</span>
-            </label>
-          </fieldset>
-
-          <fieldset class="field-group">
-            <legend class="field-label">Choose Your Role</legend>
-            <label class="choice-pill">
-              <input type="radio" name="role" value="Wizard" />
-              <span class="choice-visual">✨ Wizard</span>
-            </label>
-            <label class="choice-pill">
-              <input type="radio" name="role" value="Guardian" />
-              <span class="choice-visual">🛡️ Guardian</span>
-            </label>
-            <label class="choice-pill">
-              <input type="radio" name="role" value="Trickster" />
-              <span class="choice-visual">🎭 Trickster</span>
-            </label>
-          </fieldset>
-
-          <button
-            id="create-character-btn"
-            class="primary-button"
-            type="button"
-            onclick="bindPetborn()"
-          >
-            Bind to Your Realm
-          </button>
-        </div>
-
-        <div class="character-preview" id="character-preview">
-          <h3>Your Petborn Preview</h3>
-          <p>
-            Once you bind your birthdate, form, and role, this panel will show your
-            element and a simple summary of who you are on the field.
-          </p>
-          <div class="preview-card" id="preview-card">
-            <div class="preview-icon" id="preview-icon">🐾</div>
-            <div class="preview-text" id="preview-text">
-              No Petborn bound yet. Fill out the form to begin.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FIELD SCENE -->
-    <section id="field-screen" class="content-section hidden">
-      <h2>Field Prototype</h2>
-      <p>
-        This is an early prototype of the world view. After binding your Petborn,
-        you drop into a simple field and start collecting resources.
-      </p>
-
-      <div class="player-summary" id="player-summary">
-        No Petborn bound yet. Create your Petborn first for a personalized summary.
-      </div>
-
-      <!-- HUD -->
-      <div class="field-hud">
-        <span id="hud-element">Element: ?</span>
-        <span id="hud-role">Role: ?</span>
-        <span id="hud-resources">Wood: 0 · Crystal: 0</span>
-      </div>
-
-      <!-- The field itself -->
-      <div id="field" class="field-area">
-        <!-- Petborn token -->
-        <div id="field-petborn" class="field-petborn">🐾</div>
-
-        <!-- Resource nodes -->
-        <button class="field-resource" data-type="wood" type="button" onclick="collectResource(this)">
-          🌳
-        </button>
-        <button class="field-resource" data-type="wood" type="button" onclick="collectResource(this)">
-          🌲
-        </button>
-        <button class="field-resource" data-type="crystal" type="button" onclick="collectResource(this)">
-          🔷
-        </button>
-        <button class="field-resource" data-type="crystal" type="button" onclick="collectResource(this)">
-          🔹
-        </button>
-      </div>
-
-      <p class="game-note">
-        Later, this field will become a proper map with buildings, creatures, and
-        zoomable areas. For now, it’s just “drop in and click things to collect them.”
-      </p>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>© SouthernNurdyGeekz LLC · Petborn Realms</p>
-  </footer>
+    <footer class="controls">
+      <div>Move: WASD / Arrow Keys</div>
+      <div>Chop: Space Bar (near a resource)</div>
+    </footer>
+  </div>
 
   <script src="script.js"></script>
 </body>
