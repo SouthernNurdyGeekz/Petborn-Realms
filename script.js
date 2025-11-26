@@ -1,226 +1,280 @@
-console.log("Petborn Realms script.js loaded (animated stats)");
+// Simple debug ping so we know script loaded
+console.log("Petborn Realms script loaded");
 
-// ----- STATE -----
-const pet = {
-  name: null,
-  birth: null,
-  zodiac: null,
+// Global-ish state
+let playerState = {
+  birthdate: null,
+  sign: null,
   element: null,
-  form: "cat",
-  pattern: "spots",
-  role: null,
-  stats: {
-    strength: 0,
-    dexterity: 0,
-    endurance: 0,
-    intelligence: 0,
-    wisdom: 0,
-    charisma: 0
-  },
-  tile: 1
+  species: null,
 };
 
-const TOTAL_TILES = 40;
+let boardTiles = [];
+let currentIndex = 0;
+let isMoving = false;
 
-// ----- SCREEN ELEMENTS -----
-const scrBind  = document.getElementById("binding-screen");
-const scrBound = document.getElementById("bound-screen");
-const scrBuild = document.getElementById("build-screen");
-const scrBoard = document.getElementById("board-screen");
-
-// ----- INPUTS -----
-const inpName   = document.getElementById("pet-name-input");
-const inpBirth  = document.getElementById("birthdate-input");
-const selForm   = document.getElementById("form-select");
-const selPat    = document.getElementById("pattern-select");
-const btnBind   = document.getElementById("bind-pet-btn");
-
-const msgBound  = document.getElementById("bound-message");
-const cName     = document.getElementById("card-name");
-const c1        = document.getElementById("card-line-1");
-const c2        = document.getElementById("card-line-2");
-const c3        = document.getElementById("card-line-3");
-const c4        = document.getElementById("card-line-4");
-
-const btnStart  = document.getElementById("start-game");
-
-// ----- CLASS/STATS -----
-const selRole   = document.getElementById("role-select");
-const btnRoll   = document.getElementById("roll-stats-btn");
-const btnBoard  = document.getElementById("enter-board-btn");
-
-const statStr = document.getElementById("stat-strength");
-const statDex = document.getElementById("stat-dexterity");
-const statEnd = document.getElementById("stat-endurance");
-const statInt = document.getElementById("stat-intelligence");
-const statWis = document.getElementById("stat-wisdom");
-const statCha = document.getElementById("stat-charisma");
-
-// ----- BOARD -----
-const lblTile = document.getElementById("current-tile-label");
-const btnMove = document.getElementById("move-one-btn");
-const lblDesc = document.getElementById("tile-effect-text");
-const board   = document.getElementById("board-container");
-
-// ----- HELPERS -----
-function show(which) {
-  scrBind.hidden  = which !== "bind";
-  scrBound.hidden = which !== "bound";
-  scrBuild.hidden = which !== "build";
-  scrBoard.hidden = which !== "board";
+// Helper: grab elements safely
+function $(id) {
+  return document.getElementById(id);
 }
 
-function rollD20() {
-  return Math.floor(Math.random() * 20) + 1;
+// Screen toggles
+function showTitle() {
+  const title = $("title-screen");
+  const charScreen = $("character-screen");
+  const game = $("game");
+
+  if (title) title.classList.remove("hidden");
+  if (charScreen) charScreen.classList.add("hidden");
+  if (game) game.classList.add("hidden");
 }
 
-function zodiac(month, day) {
-  if ((month==1 && day>=20)||(month==2 && day<=18)) return "Aquarius";
-  if ((month==2 && day>=19)||(month==3 && day<=20)) return "Pisces";
-  if ((month==3 && day>=21)||(month==4 && day<=19)) return "Aries";
-  if ((month==4 && day>=20)||(month==5 && day<=20)) return "Taurus";
-  if ((month==5 && day>=21)||(month==6 && day<=20)) return "Gemini";
-  if ((month==6 && day>=21)||(month==7 && day<=22)) return "Cancer";
-  if ((month==7 && day>=23)||(month==8 && day<=22)) return "Leo";
-  if ((month==8 && day>=23)||(month==9 && day<=22)) return "Virgo";
-  if ((month==9 && day>=23)||(month==10&& day<=22)) return "Libra";
-  if ((month==10&& day>=23)||(month==11&& day<=21)) return "Scorpio";
-  if ((month==11&& day>=22)||(month==12&& day<=21)) return "Sagittarius";
-  return "Capricorn";
+function showCharacter() {
+  const title = $("title-screen");
+  const charScreen = $("character-screen");
+  const game = $("game");
+
+  if (title) title.classList.add("hidden");
+  if (charScreen) {
+    charScreen.classList.remove("hidden");
+    charScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (game) game.classList.add("hidden");
 }
 
-function element(sign) {
+function showGame() {
+  const title = $("title-screen");
+  const charScreen = $("character-screen");
+  const game = $("game");
+
+  if (title) title.classList.add("hidden");
+  if (charScreen) charScreen.classList.add("hidden");
+  if (game) {
+    game.classList.remove("hidden");
+    game.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// Zodiac helpers
+function getZodiacSign(month, day) {
+  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
+  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return "Taurus";
+  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return "Gemini";
+  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return "Cancer";
+  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return "Leo";
+  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return "Virgo";
+  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return "Libra";
+  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return "Scorpio";
+  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return "Sagittarius";
+  if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return "Capricorn";
+  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return "Aquarius";
+  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return "Pisces";
+  return "Unknown";
+}
+
+function getElementForSign(sign) {
   switch (sign) {
-    case "Aries": case "Leo": case "Sagittarius": return "Fire";
-    case "Taurus": case "Virgo": case "Capricorn": return "Earth";
-    case "Gemini": case "Libra": case "Aquarius": return "Air";
-    case "Cancer": case "Scorpio": case "Pisces": return "Water";
-    default: return "Spirit";
+    case "Aries":
+    case "Leo":
+    case "Sagittarius":
+      return "Fire";
+    case "Taurus":
+    case "Virgo":
+    case "Capricorn":
+      return "Earth";
+    case "Gemini":
+    case "Libra":
+    case "Aquarius":
+      return "Air";
+    case "Cancer":
+    case "Scorpio":
+    case "Pisces":
+      return "Water";
+    default:
+      return "Unknown";
   }
 }
 
-function tileDesc(n) {
-  return "You are on Tile " + n + ".";
-}
+// Called when you click "Bind to Your Realm"
+function bindPetborn() {
+  const birthInput = $("birthdate");
+  const previewIcon = $("preview-icon");
+  const previewText = $("preview-text");
+  const playerSummary = $("player-summary");
+  const tokenEmoji = $("pb-token");
 
-// ----- BOARD BUILDER -----
-function buildBoard() {
-  board.innerHTML = "";
-  for (let i = 1; i <= TOTAL_TILES; i++) {
-    const d = document.createElement("div");
-    d.className = "board-tile";
-    d.dataset.tile = i;
-    d.textContent = "Tile " + i;
-    board.appendChild(d);
-  }
-}
+  if (!birthInput || !previewText) return;
 
-// ----- UPDATE TILE -----
-function updateTile() {
-  lblTile.textContent = pet.tile;
-  lblDesc.textContent = tileDesc(pet.tile);
+  const birthVal = birthInput.value;
+  const speciesInput = document.querySelector('input[name="species"]:checked');
 
-  document.querySelectorAll(".board-tile").forEach(t => {
-    t.classList.toggle("active-tile", Number(t.dataset.tile) === pet.tile);
-  });
-}
-
-// ----- ANIMATED STAT ROLLING -----
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function rollStatsAnimated() {
-  if (!selRole.value) {
-    alert("Choose a class first.");
+  if (!birthVal || !speciesInput) {
+    previewText.textContent =
+      "You must choose a birthdate and a form (cat or dog) before binding.";
     return;
   }
 
-  // lock UI during animation
-  btnRoll.disabled  = true;
-  btnBoard.disabled = true;
-
-  pet.role = selRole.value;
-  c4.textContent = "Class: " + pet.role;
-
-  const sequence = [
-    { key: "strength",     el: statStr },
-    { key: "dexterity",    el: statDex },
-    { key: "endurance",    el: statEnd },
-    { key: "intelligence", el: statInt },
-    { key: "wisdom",       el: statWis },
-    { key: "charisma",     el: statCha }
-  ];
-
-  for (const item of sequence) {
-    // simple little flicker effect: show "…" then final value
-    item.el.textContent = "…";
-    await sleep(250);
-
-    const value = rollD20();
-    pet.stats[item.key] = value;
-    item.el.textContent = value;
-
-    await sleep(220);
-  }
-
-  // enable entering the board after animation is done
-  btnBoard.disabled = false;
-  btnRoll.disabled  = false;
-}
-
-// ----- EVENTS -----
-// BIND PET
-btnBind.addEventListener("click", () => {
-  if (!inpBirth.value) {
-    alert("Pick a birth date first.");
+  const parts = birthVal.split("-");
+  if (parts.length !== 3) {
+    previewText.textContent = "Birthdate format is not recognized.";
     return;
   }
 
-  const [y, m, d] = inpBirth.value.split("-");
-  pet.name    = inpName.value.trim() || "Unnamed";
-  pet.birth   = inpBirth.value;
-  pet.form    = selForm.value;
-  pet.pattern = selPat.value;
-  pet.zodiac  = zodiac(Number(m), Number(d));
-  pet.element = element(pet.zodiac);
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
 
-  msgBound.textContent =
-    `${pet.name} the ${pet.element} ${pet.form.toUpperCase()} (${pet.zodiac}) is bound.`;
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    previewText.textContent = "Birthdate numbers are not valid.";
+    return;
+  }
 
-  cName.textContent = "Name: " + pet.name;
-  c1.textContent = `Form: ${pet.form.toUpperCase()} · Element: ${pet.element} · Sign: ${pet.zodiac}`;
-  c2.textContent = "Birthdate: " + pet.birth;
-  c3.textContent = "Pattern: " + pet.pattern;
-  c4.textContent = "Class: not chosen yet";
+  const sign = getZodiacSign(month, day);
+  const element = getElementForSign(sign);
+  const species = speciesInput.value; // "cat" or "dog"
 
-  show("bound");
-});
+  playerState.birthdate = birthVal;
+  playerState.sign = sign;
+  playerState.element = element;
+  playerState.species = species;
 
-// GO TO CLASS SCREEN
-btnStart.addEventListener("click", () => show("build"));
+  const speciesEmoji = species === "cat" ? "🐱" : "🐶";
+  if (previewIcon) previewIcon.textContent = speciesEmoji;
 
-// ROLL STATS (animated, one-by-one)
-btnRoll.addEventListener("click", () => {
-  rollStatsAnimated();
-});
+  previewText.textContent =
+    sign +
+    " (" +
+    element +
+    ") · " +
+    (species === "cat" ? "Petborn Cat" : "Petborn Dog") +
+    ". This is your starting identity on the board.";
 
-// ENTER BOARD
-btnBoard.addEventListener("click", () => {
-  pet.tile = 1;
-  buildBoard();
-  updateTile();
-  show("board");
-});
+  if (tokenEmoji) {
+    tokenEmoji.textContent = speciesEmoji;
+  }
 
-// MOVE 1 SPACE
-btnMove.addEventListener("click", () => {
-  pet.tile++;
-  if (pet.tile > TOTAL_TILES) pet.tile = 1;
-  updateTile();
-});
+  if (playerSummary) {
+    playerSummary.textContent =
+      "Bound Petborn: " +
+      (species === "cat" ? "Cat" : "Dog") +
+      " · Sign: " +
+      sign +
+      " · Element: " +
+      element +
+      ". This will later influence your cards, battles, and growth.";
+  }
 
-// ----- INIT -----
-show("bind");
-buildBoard();
-updateTile();
+  // Switch to game screen
+  showGame();
+}
+
+// --- Board logic ---
+function initBoard() {
+  boardTiles = Array.from(document.querySelectorAll(".board-tile"));
+  currentIndex = 0;
+  isMoving = false;
+
+  if (boardTiles.length === 0) return;
+
+  placeTokenOnTile(currentIndex);
+  describeTile(boardTiles[currentIndex]);
+}
+
+function placeTokenOnTile(index) {
+  if (!boardTiles.length) return;
+  boardTiles.forEach((tile) => tile.classList.remove("active-tile"));
+  const tile = boardTiles[index];
+  if (!tile) return;
+  tile.classList.add("active-tile");
+}
+
+function describeTile(tile) {
+  const tileLog = $("tile-log");
+  if (!tile || !tileLog) return;
+
+  const type = tile.dataset.type || "event";
+  const labelEl = tile.querySelector(".board-tile-label");
+  const label = labelEl ? labelEl.textContent.trim() : "Tile";
+
+  let message = "";
+  switch (type) {
+    case "start":
+      message = "You are at the starting tile. Take your first steps.";
+      break;
+    case "goal":
+      message =
+        "You reached the goal! Later this will trigger rewards and new boards.";
+      break;
+    case "power":
+      message = "Power tile: you would draw from the Power deck here.";
+      break;
+    case "crystal":
+      message = "Crystal tile: you would gain or upgrade a crystal here.";
+      break;
+    case "monster":
+      message = "Monster tile: a battle would start here in a future build.";
+      break;
+    case "potion":
+      message = "Potion tile: you would recover or gain buffs here.";
+      break;
+    case "event":
+    default:
+      message = "Event tile: something unusual happens here.";
+      break;
+  }
+
+  tileLog.innerHTML =
+    'You are at <span class="log-highlight">' +
+    label +
+    "</span>. " +
+    message;
+}
+
+function rollDie() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+// Called by the Roll button
+function rollOnBoard() {
+  const rollButton = $("roll-button");
+  const rollResult = $("roll-result");
+
+  if (!boardTiles.length || !rollButton || !rollResult) return;
+  if (isMoving) return;
+
+  const steps = rollDie();
+  rollResult.textContent = "You rolled a " + steps + ".";
+  isMoving = true;
+  rollButton.disabled = true;
+
+  let remaining = steps;
+
+  const intervalId = setInterval(() => {
+    if (remaining <= 0) {
+      clearInterval(intervalId);
+      const tile = boardTiles[currentIndex];
+      describeTile(tile);
+      isMoving = false;
+      rollButton.disabled = false;
+      return;
+    }
+
+    if (currentIndex < boardTiles.length - 1) {
+      currentIndex += 1;
+    }
+    placeTokenOnTile(currentIndex);
+    remaining -= 1;
+  }, 260);
+}
+
+// Initialize once the DOM is ready enough (script is at the bottom)
+(function initialSetup() {
+  // Just to prove script ran
+  const tagline = document.querySelector(".tagline");
+  if (tagline) {
+    tagline.textContent += " · Prototype wired";
+  }
+
+  initBoard();
+  showTitle();
+})();
