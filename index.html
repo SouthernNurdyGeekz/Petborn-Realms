@@ -13,15 +13,15 @@
       <p class="tagline">A browser world where you are the pet.</p>
     </div>
     <nav class="main-nav">
-      <a href="#title-screen">Home</a>
-      <a href="#character-screen">Create</a>
-      <a href="#game">Realms</a>
+      <button type="button" onclick="showTitle()">Home</button>
+      <button type="button" onclick="showCharacter()">Create</button>
+      <button type="button" onclick="showField()">Field</button>
     </nav>
   </header>
 
   <main>
     <!-- TITLE SCREEN -->
-    <section id="title-screen" class="full-screen-panel">
+    <section id="title-screen" class="content-section">
       <div class="title-inner">
         <div class="title-creatures">
           <span class="title-pet">🐱</span>
@@ -29,12 +29,13 @@
         </div>
         <h2 class="title-heading">Welcome to Petborn Realms</h2>
         <p class="title-text">
-          This isn’t a pet <em>owner</em> game. <strong>You</strong> are the creature.
-          Your birthdate shapes your element. Your form shapes how you cross the realms.
+          You’re not the owner. <strong>You</strong> are the creature. Your birthdate shapes
+          your element, your form shapes how you survive, and your role shapes how you play.
         </p>
         <button
           id="start-game-btn"
           class="primary-button large"
+          type="button"
           onclick="showCharacter()"
         >
           Start Your Journey
@@ -46,9 +47,10 @@
     <section id="character-screen" class="content-section hidden">
       <h2>Create Your Petborn</h2>
       <p>
-        Step 1: Enter your birthdate so the Realm can determine your elemental lean.<br>
-        Step 2: Choose whether you are a cat or a dog (your starting form).<br>
-        Step 3: Choose your role (wizard / guardian / trickster style).
+        Step 1: Enter your birthdate so the Realms can determine your elemental lean.<br />
+        Step 2: Choose whether you are a cat or a dog (your starting form).<br />
+        Step 3: Choose your role (wizard / guardian / trickster style).<br />
+        Then you’ll drop into a simple field where you can start collecting resources.
       </p>
 
       <div class="character-grid">
@@ -87,6 +89,7 @@
           <button
             id="create-character-btn"
             class="primary-button"
+            type="button"
             onclick="bindPetborn()"
           >
             Bind to Your Realm
@@ -97,7 +100,7 @@
           <h3>Your Petborn Preview</h3>
           <p>
             Once you bind your birthdate, form, and role, this panel will show your
-            element and a simple summary of who you are in the Realms.
+            element and a simple summary of who you are on the field.
           </p>
           <div class="preview-card" id="preview-card">
             <div class="preview-icon" id="preview-icon">🐾</div>
@@ -109,62 +112,48 @@
       </div>
     </section>
 
-    <!-- REALMS SCREEN (replaces board) -->
-    <section id="game" class="content-section hidden">
-      <h2>Your Realms</h2>
+    <!-- FIELD SCENE -->
+    <section id="field-screen" class="content-section hidden">
+      <h2>Field Prototype</h2>
       <p>
-        This is an early prototype of the Realms view. Instead of a dice board,
-        you see your Petborn and the elemental Realms you can enter. Later this
-        will look more like a world map with buildings, creatures, and paths.
+        This is an early prototype of the world view. After binding your Petborn,
+        you drop into a simple field and start collecting resources.
       </p>
 
       <div class="player-summary" id="player-summary">
         No Petborn bound yet. Create your Petborn first for a personalized summary.
       </div>
 
-      <div class="game-wrapper">
-        <!-- Left side: petborn card + realm buttons -->
-        <div class="board-container">
-          <div id="petborn-card" class="preview-card">
-            <div class="preview-icon" id="game-preview-icon">🐾</div>
-            <div class="preview-text" id="game-preview-text">
-              Your Petborn details will appear here once bound.
-            </div>
-          </div>
+      <!-- HUD -->
+      <div class="field-hud">
+        <span id="hud-element">Element: ?</span>
+        <span id="hud-role">Role: ?</span>
+        <span id="hud-resources">Wood: 0 · Crystal: 0</span>
+      </div>
 
-          <p style="margin-top: 0.9rem;">
-            Choose a Realm to explore:
-          </p>
+      <!-- The field itself -->
+      <div id="field" class="field-area">
+        <!-- Petborn token -->
+        <div id="field-petborn" class="field-petborn">🐾</div>
 
-          <div class="realm-buttons">
-            <button class="primary-button" onclick="enterRealm('Air')">
-              Air Realm
-            </button>
-            <button class="primary-button" onclick="enterRealm('Earth')">
-              Earth Realm
-            </button>
-            <button class="primary-button" onclick="enterRealm('Fire')">
-              Fire Realm
-            </button>
-            <button class="primary-button" onclick="enterRealm('Water')">
-              Water Realm
-            </button>
-          </div>
-        </div>
-
-        <!-- Right side: realm log -->
-        <div class="game-controls">
-          <div id="realm-log" class="game-log">
-            Choose a Realm to see what kind of encounter you’d face there, based
-            on your element and role.
-          </div>
-        </div>
+        <!-- Resource nodes -->
+        <button class="field-resource" data-type="wood" type="button" onclick="collectResource(this)">
+          🌳
+        </button>
+        <button class="field-resource" data-type="wood" type="button" onclick="collectResource(this)">
+          🌲
+        </button>
+        <button class="field-resource" data-type="crystal" type="button" onclick="collectResource(this)">
+          🔷
+        </button>
+        <button class="field-resource" data-type="crystal" type="button" onclick="collectResource(this)">
+          🔹
+        </button>
       </div>
 
       <p class="game-note">
-        Later, this Realms view will gain art, zoomable maps, and battles you can
-        launch from each area. For now, it’s our testing ground for identity
-        (birthdate → element → role) and realm flavor.
+        Later, this field will become a proper map with buildings, creatures, and
+        zoomable areas. For now, it’s just “drop in and click things to collect them.”
       </p>
     </section>
   </main>
