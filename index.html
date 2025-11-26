@@ -18,12 +18,26 @@
       </div>
     </header>
 
+    <!-- Character customizer -->
+    <section id="customizer">
+      <div class="customizer-group">
+        <span class="customizer-label">Cat Style:</span>
+        <select id="cat-style">
+          <option value="carly">Carly · white + dark spots</option>
+          <option value="belle">Belle · midnight cat</option>
+          <option value="tabby">Tabby · golden stripes</option>
+          <option value="neon">Neon · rave kitty</option>
+        </select>
+      </div>
+      <button id="randomize-cat" type="button">Randomize Look</button>
+    </section>
+
     <div id="game-area">
       <!-- Ground -->
       <div id="ground"></div>
 
       <!-- Chibi cat character -->
-      <div id="cat">
+      <div id="cat" data-style="neon">
         <div class="cat-body">
           <div class="cat-head">
             <div class="cat-ear ear-left"></div>
