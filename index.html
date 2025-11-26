@@ -1,334 +1,134 @@
-console.log('Petborn script.js loaded.');
+<!-- Binding screen -->
+<section id="binding-screen" class="screen">
+  <h2>Bind Your Petborn</h2>
 
-// ----- STATE -----
-const petbornState = {
-  name: null,
-  birthdate: null,
-  zodiac: null,
-  element: null,
-  form: 'cat',
-  pattern: 'spots',
-  role: null,
-  stats: {
-    power: null,
-    defense: null,
-    magic: null,
-    speed: null,
-    luck: null,
-    focus: null
-  },
-  currentTile: 1
-};
+  <label>Pet Name:
+    <input type="text" id="pet-name-input">
+  </label>
 
-const TOTAL_TILES = 40;
+  <label>Birth Date:
+    <input type="date" id="birthdate-input">
+  </label>
 
-// ----- SCREEN DOM -----
-const bindingScreen = document.getElementById('binding-screen');
-const boundScreen = document.getElementById('bound-screen');
-const buildScreen = document.getElementById('build-screen');
-const boardScreen = document.getElementById('board-screen');
+  <label>Form:
+    <select id="form-select">
+      <option value="cat">Cat</option>
+      <option value="dog">Dog</option>
+      <option value="dragon">Dragon</option>
+    </select>
+  </label>
 
-// ----- BINDING DOM -----
-const petPreview = document.getElementById('pet-preview');
-const patternSelect = document.getElementById('pattern-select');
+  <label>Pattern:
+    <select id="pattern-select">
+      <option value="spots">Spots</option>
+      <option value="stripes">Stripes</option>
+      <option value="solid">Solid</option>
+    </select>
+  </label>
 
-const petNameInput = document.getElementById('pet-name-input');
-const birthdateInput = document.getElementById('birthdate-input');
-const formSelect = document.getElementById('form-select');
-const bindPetBtn = document.getElementById('bind-pet-btn');
+  <button id="bind-pet-btn">Bind to Realm</button>
+</section>
 
-const boundMessage = document.getElementById('bound-message');
-const cardName = document.getElementById('card-name');
-const cardLine1 = document.getElementById('card-line-1');
-const cardLine2 = document.getElementById('card-line-2');
-const cardLine3 = document.getElementById('card-line-3');
-const cardLine4 = document.getElementById('card-line-4');
+<!-- Bound summary -->
+<section id="bound-screen" class="screen" hidden>
+  <h2>Petborn Bound</h2>
 
-const startGameBtn = document.getElementById('start-game');
+  <p id="bound-message"></p>
 
-// ----- CLASS & STATS DOM -----
-const roleSelect = document.getElementById('role-select');
-const rollStatsBtn = document.getElementById('roll-stats-btn');
-const enterBoardBtn = document.getElementById('enter-board-btn');
+  <div class="petborn-card">
+    <p id="card-name"></p>
+    <p id="card-line-1"></p>
+    <p id="card-line-2"></p>
+    <p id="card-line-3"></p>
+    <p id="card-line-4"></p>
+  </div>
 
-const statPower = document.getElementById('stat-power');
-const statDefense = document.getElementById('stat-defense');
-const statMagic = document.getElementById('stat-magic');
-const statSpeed = document.getElementById('stat-speed');
-const statLuck = document.getElementById('stat-luck');
-const statFocus = document.getElementById('stat-focus');
+  <button id="start-game">Choose Class & Roll Stats</button>
+</section>
 
-const rollSummaryText = document.getElementById('roll-summary-text');
+<!-- Class/stats screen -->
+<section id="build-screen" class="screen" hidden>
+  <h2>Class & Stats</h2>
 
-const bindingSummarySection = document.getElementById('binding-summary');
-const bindingSummaryText = document.getElementById('binding-summary-text');
+  <label>Class:
+    <select id="role-select">
+      <option value="">-- Select --</option>
+      <option value="Ranger">Ranger</option>
+      <option value="Wizard">Wizard</option>
+      <option value="Guardian">Guardian</option>
+      <option value="Trickster">Trickster</option>
+      <option value="Healer">Healer</option>
+    </select>
+  </label>
 
-// ----- BOARD DOM -----
-const currentTileLabel = document.getElementById('current-tile-label');
-const moveOneBtn = document.getElementById('move-one-btn');
-const tileEffectText = document.getElementById('tile-effect-text');
-const boardTiles = document.querySelectorAll('.board-tile');
+  <button id="roll-stats-btn">Roll d20 Stats</button>
 
-// ----- HELPERS -----
-function showScreen(screen) {
-  [bindingScreen, boundScreen, buildScreen, boardScreen].forEach(s => {
-    if (!s) return;
-    s.hidden = s !== screen;
-  });
-}
+  <ul>
+    <li>Power: <span id="stat-power">—</span></li>
+    <li>Defense: <span id="stat-defense">—</span></li>
+    <li>Magic: <span id="stat-magic">—</span></li>
+    <li>Speed: <span id="stat-speed">—</span></li>
+    <li>Luck: <span id="stat-luck">—</span></li>
+    <li>Focus: <span id="stat-focus">—</span></li>
+  </ul>
 
-function getZodiacSign(month, day) {
-  // month: 1-12, day: 1-31; western zodiac ranges
-  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'Aquarius';
-  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return 'Pisces';
-  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'Aries';
-  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'Taurus';
-  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'Gemini';
-  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'Cancer';
-  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'Leo';
-  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'Virgo';
-  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'Libra';
-  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'Scorpio';
-  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius';
-  return 'Capricorn';
-}
+  <button id="enter-board-btn" disabled>Enter Board</button>
+</section>
 
-function elementFromZodiac(sign) {
-  switch (sign) {
-    case 'Aries':
-    case 'Leo':
-    case 'Sagittarius':
-      return 'Fire';
-    case 'Taurus':
-    case 'Virgo':
-    case 'Capricorn':
-      return 'Earth';
-    case 'Gemini':
-    case 'Libra':
-    case 'Aquarius':
-      return 'Air';
-    case 'Cancer':
-    case 'Scorpio':
-    case 'Pisces':
-      return 'Water';
-    default:
-      return 'Spirit';
-  }
-}
+<!-- Infinity board -->
+<section id="board-screen" class="screen" hidden>
+  <h2>Infinity Board</h2>
 
-function updatePetPreview() {
-  if (!petPreview) return;
-  const form = petbornState.form || 'cat';
-  const pattern = petbornState.pattern || 'spots';
+  <p>Current tile: <span id="current-tile-label">1 (HOME)</span></p>
 
-  petPreview.className = 'pet-preview';
-  petPreview.classList.add(`${form}-base`);
-  petPreview.classList.add(`cat-${pattern}`);
-}
+  <button id="move-one-btn">Move 1 Space</button>
 
-function updateBoundCard() {
-  cardName.textContent = `Name: ${petbornState.name || '—'}`;
-  cardLine1.textContent =
-    `Form: ${(petbornState.form || '—').toUpperCase()} · ` +
-    `Element: ${petbornState.element || '—'} · ` +
-    `Sign: ${petbornState.zodiac || '—'}`;
-  cardLine2.textContent = `Birthdate: ${petbornState.birthdate || '—'}`;
-  cardLine3.textContent = `Pattern: ${petbornState.pattern || '—'}`;
-  cardLine4.textContent = `Class: ${petbornState.role || 'not chosen yet'}`;
-}
+  <p id="tile-effect-text">
+    You are at HOME.
+  </p>
 
-function updateBindingSummary() {
-  if (!bindingSummarySection || !bindingSummaryText) return;
+  <div id="board-container">
+    <!-- Tiles 1–40 -->
+    <div class="board-tile" data-tile="1">1 · HOME</div>
+    <div class="board-tile" data-tile="2">2 · POWER L1</div>
+    <div class="board-tile" data-tile="3">3 · EVENT L1</div>
+    <div class="board-tile" data-tile="4">4 · CRYSTAL L1</div>
+    <div class="board-tile" data-tile="5">5 · MONSTER L1</div>
+    <div class="board-tile" data-tile="6">6 · GOLD L1</div>
+    <div class="board-tile" data-tile="7">7 · POTION L1</div>
+    <div class="board-tile" data-tile="8">8 · REST</div>
+    <div class="board-tile" data-tile="9">9 · POWER L2</div>
+    <div class="board-tile" data-tile="10">10 · EVENT L2</div>
+    <div class="board-tile" data-tile="11">11 · CRYSTAL L2</div>
+    <div class="board-tile" data-tile="12">12 · MONSTER L2</div>
+    <div class="board-tile" data-tile="13">13 · GOLD L2</div>
+    <div class="board-tile" data-tile="14">14 · POTION L2</div>
+    <div class="board-tile" data-tile="15">15 · GATE LEFT</div>
+    <div class="board-tile" data-tile="16">16 · PRE-NEXUS</div>
+    <div class="board-tile nexus-tile" data-tile="17">17 · NEXUS</div>
+    <div class="board-tile" data-tile="18">18 · POST-NEXUS</div>
+    <div class="board-tile" data-tile="19">19 · POWER L3</div>
+    <div class="board-tile" data-tile="20">20 · GOLD L3</div>
+    <div class="board-tile" data-tile="21">21 · POTION L3</div>
+    <div class="board-tile" data-tile="22">22 · EVENT L3</div>
+    <div class="board-tile" data-tile="23">23 · MONSTER L3</div>
+    <div class="board-tile" data-tile="24">24 · CRYSTAL L3</div>
+    <div class="board-tile" data-tile="25">25 · SHOP</div>
+    <div class="board-tile" data-tile="26">26 · MYSTERY</div>
+    <div class="board-tile" data-tile="27">27 · GOLD L4</div>
+    <div class="board-tile" data-tile="28">28 · POTION L4</div>
+    <div class="board-tile" data-tile="29">29 · MONSTER L4</div>
+    <div class="board-tile" data-tile="30">30 · CRYSTAL L4</div>
+    <div class="board-tile" data-tile="31">31 · EVENT L4</div>
+    <div class="board-tile" data-tile="32">32 · POWER L4</div>
+    <div class="board-tile" data-tile="33">33 · FATE</div>
+    <div class="board-tile" data-tile="34">34 · WARP</div>
+    <div class="board-tile" data-tile="35">35 · GOLD RARE</div>
+    <div class="board-tile" data-tile="36">36 · POTION RARE</div>
+    <div class="board-tile" data-tile="37">37 · MONSTER MINI-BOSS</div>
+    <div class="board-tile" data-tile="38">38 · CRYSTAL RARE</div>
+    <div class="board-tile" data-tile="39">39 · EVENT MAJOR</div>
+    <div class="board-tile" data-tile="40">40 · GATE RIGHT</div>
+  </div>
 
-  bindingSummaryText.textContent =
-    `Petborn ${petbornState.name || '(unnamed)'} · ` +
-    `Class: ${petbornState.role || '—'} · ` +
-    `Element: ${petbornState.element || '—'} · ` +
-    `Sign: ${petbornState.zodiac || '—'} · ` +
-    `Power: ${petbornState.stats.power ?? '—'}, ` +
-    `Defense: ${petbornState.stats.defense ?? '—'}, ` +
-    `Magic: ${petbornState.stats.magic ?? '—'}, ` +
-    `Speed: ${petbornState.stats.speed ?? '—'}, ` +
-    `Luck: ${petbornState.stats.luck ?? '—'}, ` +
-    `Focus: ${petbornState.stats.focus ?? '—'}`;
-
-  bindingSummarySection.hidden = false;
-}
-
-// simple d20 roll
-function rollD20() {
-  return Math.floor(Math.random() * 20) + 1;
-}
-
-// ----- BOARD LOGIC -----
-function getTileInfo(tileNum) {
-  // Keep tile types in one place
-  switch (tileNum) {
-    case 1: return { type: 'Home', desc: 'Safe, cozy. Nothing bad happens here.' };
-    case 2: return { type: 'Power L1', desc: 'Small boost to Power in future battles.' };
-    case 3: return { type: 'Event L1', desc: 'Minor realm event; flavor text later.' };
-    case 4: return { type: 'Crystal L1', desc: 'Gain a basic crystal fragment.' };
-    case 5: return { type: 'Monster L1', desc: 'Light monster encounter (future battle).' };
-    case 6: return { type: 'Gold L1', desc: 'You gain a little gold.' };
-    case 7: return { type: 'Potion L1', desc: 'Basic healing or buff potion.' };
-    case 8: return { type: 'Rest', desc: 'Heal and clear minor negative effects.' };
-    case 9: return { type: 'Power L2', desc: 'Stronger Power boost.' };
-    case 10: return { type: 'Event L2', desc: 'Moderate realm event.' };
-    case 11: return { type: 'Crystal L2', desc: 'Improved crystal gain.' };
-    case 12: return { type: 'Monster L2', desc: 'Medium monster encounter.' };
-    case 13: return { type: 'Gold L2', desc: 'Decent pile of gold.' };
-    case 14: return { type: 'Potion L2', desc: 'Better potion effects.' };
-    case 15: return { type: 'Gate Left', desc: 'You can approach the Nexus from the left side.' };
-    case 16: return { type: 'Pre-Nexus', desc: 'You feel the Nexus energy building.' };
-    case 17: return { type: 'Nexus', desc: 'Major upgrades, fusions, and story beats in the future.' };
-    case 18: return { type: 'Post-Nexus', desc: 'Energy still buzzing from the Nexus.' };
-    case 19: return { type: 'Power L3', desc: 'High-tier Power buff.' };
-    case 20: return { type: 'Gold L3', desc: 'Strong gold gain.' };
-    case 21: return { type: 'Potion L3', desc: 'High-tier potion.' };
-    case 22: return { type: 'Event L3', desc: 'Serious realm event.' };
-    case 23: return { type: 'Monster L3', desc: 'Harder encounter.' };
-    case 24: return { type: 'Crystal L3', desc: 'Rare crystal fragment.' };
-    case 25: return { type: 'Shop', desc: 'Spend gold on items/cards (future feature).' };
-    case 26: return { type: 'Mystery', desc: 'Random weirdness; could be good or bad.' };
-    case 27: return { type: 'Gold L4', desc: 'Big gold payout.' };
-    case 28: return { type: 'Potion L4', desc: 'Top-tier potion.' };
-    case 29: return { type: 'Monster L4', desc: 'Tough monster encounter.' };
-    case 30: return { type: 'Crystal L4', desc: 'Powerful crystal gain.' };
-    case 31: return { type: 'Event L4', desc: 'Major realm shift event.' };
-    case 32: return { type: 'Power L4', desc: 'Peak Power boost.' };
-    case 33: return { type: 'Fate', desc: 'Rare destiny-changing effect later.' };
-    case 34: return { type: 'Warp', desc: 'Teleport to another tile (future logic).' };
-    case 35: return { type: 'Gold Rare', desc: 'Huge gold jackpot.' };
-    case 36: return { type: 'Potion Rare', desc: 'Legendary potion.' };
-    case 37: return { type: 'Monster Mini-Boss', desc: 'Mini-boss encounter.' };
-    case 38: return { type: 'Crystal Rare', desc: 'Top-tier crystal reward.' };
-    case 39: return { type: 'Event Major', desc: 'Major story event.' };
-    case 40: return { type: 'Gate Right', desc: 'Another approach to the Nexus.' };
-    default: return { type: 'Unknown', desc: 'The realm glitches for a moment.' };
-  }
-}
-
-function updateBoardHighlight() {
-  boardTiles.forEach(tile => {
-    const n = Number(tile.dataset.tile);
-    tile.classList.toggle('active-tile', n === petbornState.currentTile);
-  });
-
-  const info = getTileInfo(petbornState.currentTile);
-  currentTileLabel.textContent = `${petbornState.currentTile} (${info.type.toUpperCase()})`;
-  tileEffectText.textContent = info.desc;
-}
-
-// ----- EVENT WIRING -----
-
-// pattern → preview
-if (patternSelect) {
-  patternSelect.addEventListener('change', () => {
-    petbornState.pattern = patternSelect.value || 'spots';
-    updatePetPreview();
-  });
-}
-
-// bind pet button
-if (bindPetBtn) {
-  bindPetBtn.addEventListener('click', () => {
-    const name = petNameInput.value.trim();
-    const birthdate = birthdateInput.value;
-    const form = formSelect.value || 'cat';
-
-    if (!birthdate) {
-      alert('You must at least pick a birth date to bind your Petborn.');
-      return;
-    }
-
-    const [yearStr, monthStr, dayStr] = birthdate.split('-');
-    const month = Number(monthStr);
-    const day = Number(dayStr);
-    const sign = getZodiacSign(month, day);
-    const element = elementFromZodiac(sign);
-
-    petbornState.name = name || 'Unnamed';
-    petbornState.birthdate = birthdate;
-    petbornState.form = form;
-    petbornState.zodiac = sign;
-    petbornState.element = element;
-
-    updatePetPreview();
-    updateBoundCard();
-
-    boundMessage.textContent =
-      `${petbornState.name} the ${petbornState.element} ` +
-      `${petbornState.form.toUpperCase()} (${petbornState.zodiac}) ` +
-      `has been bound to this realm.`;
-
-    showScreen(boundScreen);
-  });
-}
-
-// start game → class & stats
-if (startGameBtn) {
-  startGameBtn.addEventListener('click', () => {
-    showScreen(buildScreen);
-  });
-}
-
-// roll stats
-if (rollStatsBtn) {
-  rollStatsBtn.addEventListener('click', () => {
-    const role = roleSelect.value;
-    if (!role) {
-      alert('Choose a class first.');
-      return;
-    }
-
-    petbornState.role = role;
-
-    // d20 for each stat
-    petbornState.stats.power = rollD20();
-    petbornState.stats.defense = rollD20();
-    petbornState.stats.magic = rollD20();
-    petbornState.stats.speed = rollD20();
-    petbornState.stats.luck = rollD20();
-    petbornState.stats.focus = rollD20();
-
-    statPower.textContent = petbornState.stats.power;
-    statDefense.textContent = petbornState.stats.defense;
-    statMagic.textContent = petbornState.stats.magic;
-    statSpeed.textContent = petbornState.stats.speed;
-    statLuck.textContent = petbornState.stats.luck;
-    statFocus.textContent = petbornState.stats.focus;
-
-    rollSummaryText.textContent =
-      `Class: ${role}. d20-based stats rolled. This will drive battles and checks later.`;
-
-    updateBoundCard();
-    updateBindingSummary();
-
-    // allow entering the board once we have stats
-    enterBoardBtn.disabled = false;
-  });
-}
-
-// enter board
-if (enterBoardBtn) {
-  enterBoardBtn.addEventListener('click', () => {
-    petbornState.currentTile = 1; // HOME
-    showScreen(boardScreen);
-    updateBoardHighlight();
-  });
-}
-
-// move one tile at a time (no dice for movement yet)
-if (moveOneBtn) {
-  moveOneBtn.addEventListener('click', () => {
-    petbornState.currentTile += 1;
-    if (petbornState.currentTile > TOTAL_TILES) {
-      petbornState.currentTile = 1;
-    }
-    updateBoardHighlight();
-  });
-}
-
-// initial state
-updatePetPreview();
-showScreen(bindingScreen);
+</section>
