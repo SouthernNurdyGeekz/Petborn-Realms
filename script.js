@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Smooth scroll for nav links ---
+  // --- Sanity check: prove JS is running ---
+  const tagline = document.querySelector(".tagline");
+  if (tagline) {
+    // This should append text under the logo when JS is working
+    tagline.textContent += " · Prototype 1";
+  }
+
+  // --- Smooth scroll for nav links (cosmetic) ---
   const navLinks = document.querySelectorAll('.main-nav a[href^="#"]');
   navLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
@@ -27,30 +34,36 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function showTitle() {
-    titleScreen.classList.remove("hidden");
-    characterScreen.classList.add("hidden");
-    gameScreen.classList.add("hidden");
+    if (titleScreen) titleScreen.classList.remove("hidden");
+    if (characterScreen) characterScreen.classList.add("hidden");
+    if (gameScreen) gameScreen.classList.add("hidden");
   }
 
   function showCharacter() {
-    titleScreen.classList.add("hidden");
-    characterScreen.classList.remove("hidden");
-    gameScreen.classList.add("hidden");
-    characterScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (titleScreen) titleScreen.classList.add("hidden");
+    if (characterScreen) {
+      characterScreen.classList.remove("hidden");
+      characterScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    if (gameScreen) gameScreen.classList.add("hidden");
   }
 
   function showGame() {
-    titleScreen.classList.add("hidden");
-    characterScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
-    gameScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (titleScreen) titleScreen.classList.add("hidden");
+    if (characterScreen) characterScreen.classList.add("hidden");
+    if (gameScreen) {
+      gameScreen.classList.remove("hidden");
+      gameScreen.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   if (startButton) {
-    startButton.addEventListener("click", showCharacter);
+    startButton.addEventListener("click", () => {
+      showCharacter();
+    });
   }
 
-  // --- Zodiac / element helpers ---
+  // --- Zodiac / element helpers (manual date parsing) ---
 
   function getZodiacSign(month, day) {
     if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return "Aries";
@@ -101,26 +114,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updatePreview() {
     if (!playerState.birthdate || !playerState.species || !playerState.sign) {
-      previewIcon.textContent = "🐾";
-      previewText.textContent =
-        "No Petborn bound yet. Fill out birthdate and choose a form.";
+      if (previewIcon) previewIcon.textContent = "🐾";
+      if (previewText) {
+        previewText.textContent =
+          "No Petborn bound yet. Fill out birthdate and choose a form.";
+      }
       return;
     }
 
     const speciesEmoji = playerState.species === "cat" ? "🐱" : "🐶";
-    previewIcon.textContent = speciesEmoji;
+    if (previewIcon) previewIcon.textContent = speciesEmoji;
 
-    previewText.textContent =
-      playerState.sign +
-      " (" +
-      playerState.element +
-      ") · " +
-      (playerState.species === "cat" ? "Petborn Cat" : "Petborn Dog") +
-      ". This is your starting identity on the board.";
+    if (previewText) {
+      previewText.textContent =
+        playerState.sign +
+        " (" +
+        playerState.element +
+        ") · " +
+        (playerState.species === "cat" ? "Petborn Cat" : "Petborn Dog") +
+        ". This is your starting identity on the board.";
+    }
   }
 
   if (createCharacterButton) {
     createCharacterButton.addEventListener("click", () => {
+      if (!birthdateInput || !previewText) return;
+
       const birthVal = birthdateInput.value;
       const speciesInput = document.querySelector('input[name="species"]:checked');
 
@@ -130,13 +149,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const date = new Date(birthVal + "T00:00:00");
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
+      // birthVal is "YYYY-MM-DD"
+      const parts = birthVal.split("-");
+      if (parts.length !== 3) {
+        previewText.textContent = "Birthdate format is not recognized.";
+        return;
+      }
+
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+
+      if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        previewText.textContent = "Birthdate numbers are not valid.";
+        return;
+      }
 
       const sign = getZodiacSign(month, day);
       const element = getElementForSign(sign);
-      const species = speciesInput.value;
+      const species = speciesInput.value; // "cat" or "dog"
 
       playerState.birthdate = birthVal;
       playerState.sign = sign;
@@ -160,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ". This will later influence your cards, battles, and growth.";
       }
 
+      // Go to game screen
       showGame();
     });
   }
@@ -170,11 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const rollButton = document.getElementById("roll-button");
   const rollResult = document.getElementById("roll-result");
   const tileLog = document.getElementById("tile-log");
-
-  if (!tiles.length || !rollButton || !rollResult || !tileLog) {
-    showTitle();
-    return;
-  }
 
   let currentIndex = 0;
   let isMoving = false;
@@ -187,6 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function describeTile(tile) {
+    if (!tileLog) return;
+
     const type = tile.dataset.type || "event";
     const labelEl = tile.querySelector(".board-tile-label");
     const label = labelEl ? labelEl.textContent.trim() : "Tile";
@@ -229,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function moveSteps(steps) {
+    if (!rollButton) return;
     if (isMoving) return;
     isMoving = true;
     rollButton.disabled = true;
@@ -253,15 +283,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 260);
   }
 
-  placeTokenOnTile(currentIndex);
-  describeTile(tiles[currentIndex]);
+  if (tiles.length && rollButton && rollResult && tileLog) {
+    placeTokenOnTile(currentIndex);
+    describeTile(tiles[currentIndex]);
 
-  rollButton.addEventListener("click", () => {
-    if (isMoving) return;
-    const roll = rollDie();
-    rollResult.textContent = "You rolled a " + roll + ".";
-    moveSteps(roll);
-  });
+    rollButton.addEventListener("click", () => {
+      if (isMoving) return;
+      const roll = rollDie();
+      rollResult.textContent = "You rolled a " + roll + ".";
+      moveSteps(roll);
+    });
+  }
 
+  // Start on title screen
   showTitle();
 });
