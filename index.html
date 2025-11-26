@@ -32,7 +32,6 @@
           This isn’t a pet <em>owner</em> game. <strong>You</strong> are the creature.
           Your birthdate shapes your element. Your form shapes how you cross the board.
         </p>
-        <!-- NOTE: onclick added here -->
         <button
           id="start-game-btn"
           class="primary-button large"
@@ -47,8 +46,9 @@
     <section id="character-screen" class="content-section hidden">
       <h2>Create Your Petborn</h2>
       <p>
-        Step 1: Enter your birthdate so the Realm can determine your elemental lean.
-        Step 2: Choose whether you are a cat or a dog. This is your starting form.
+        Step 1: Enter your birthdate so the Realm can determine your elemental lean.<br>
+        Step 2: Choose whether you are a cat or a dog (your starting form).<br>
+        Step 3: Choose your role (wizard/guardian/trickster style).
       </p>
 
       <div class="character-grid">
@@ -68,7 +68,22 @@
             </label>
           </fieldset>
 
-          <!-- NOTE: onclick added here -->
+          <fieldset class="field-group">
+            <legend class="field-label">Choose Your Role</legend>
+            <label class="choice-pill">
+              <input type="radio" name="role" value="Wizard" />
+              <span class="choice-visual">✨ Wizard</span>
+            </label>
+            <label class="choice-pill">
+              <input type="radio" name="role" value="Guardian" />
+              <span class="choice-visual">🛡️ Guardian</span>
+            </label>
+            <label class="choice-pill">
+              <input type="radio" name="role" value="Trickster" />
+              <span class="choice-visual">🎭 Trickster</span>
+            </label>
+          </fieldset>
+
           <button
             id="create-character-btn"
             class="primary-button"
@@ -81,8 +96,8 @@
         <div class="character-preview" id="character-preview">
           <h3>Your Petborn Preview</h3>
           <p>
-            Once you bind your birthdate and form, this panel will show your
-            element and a simple summary of who you are in the board.
+            Once you bind your birthdate, form, and role, this panel will show your
+            element and a simple summary of who you are on the board.
           </p>
           <div class="preview-card" id="preview-card">
             <div class="preview-icon" id="preview-icon">🐾</div>
@@ -180,7 +195,6 @@
     <p>© SouthernNurdyGeekz LLC · Petborn Realms</p>
   </footer>
 
-  <!-- Important: script at the very bottom -->
   <script src="script.js"></script>
 </body>
 </html>
